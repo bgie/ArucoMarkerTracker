@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>HeaderTemplateCStyle.txt</file>
+        <file>HeaderTemplateHashtagStyle.txt</file>
+    </qresource>
+</RCC>
