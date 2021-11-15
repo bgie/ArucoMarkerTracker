@@ -17,3 +17,4 @@
 INCLUDEPATH += $$PWD/lib
 DEPENDPATH += $$PWD/lib
 LIBS += $$absolute_path($$OUT_PWD/../lib/liblib.a)
+PRE_TARGETDEPS += $$absolute_path($$OUT_PWD/../lib/liblib.a)

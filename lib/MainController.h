@@ -82,6 +82,8 @@ public:
     Q_INVOKABLE void saveSingleFrame();
 
     QString loadPath() const;
+    Q_INVOKABLE void loadVideo();
+    Q_INVOKABLE void saveVideo();
     QString replayFps() const;
     bool canReplayStream() const;
     Q_INVOKABLE void startReplayStream();

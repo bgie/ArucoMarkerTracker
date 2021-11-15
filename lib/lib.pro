@@ -31,7 +31,8 @@ HEADERS += \
     Marker.h \
     MarkerTracker.h \
     ReplayTimer.h \
-    Video.h
+    Video.h \
+    GeneticAlgorithm.h
 
 SOURCES += \
     ArucoDetector.cpp \
@@ -44,4 +45,5 @@ SOURCES += \
     Marker.cpp \
     MarkerTracker.cpp \
     ReplayTimer.cpp \
-    Video.cpp
+    Video.cpp \
+    GeneticAlgorithm.cpp

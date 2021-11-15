@@ -22,14 +22,9 @@ include(../link_lib.pri)
 include(../link_opencv.pri)
 
 HEADERS += \
-    TestFactory.h \
-    TestGeneraticAlgorithm.h \
-    TestSourceCode.h
+
 
 SOURCES += \
-    TestFactory.cpp \
-    TestGeneraticAlgorithm.cpp \
-    TestSourceCode.cpp \
     main.cpp
 
 RESOURCES += resources.qrc

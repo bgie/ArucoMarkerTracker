@@ -30,6 +30,7 @@ const QString SAVEPATH_KEY(QStringLiteral("SavePath"));
 const QString SKIPSAVINGFRAMES_KEY(QStringLiteral("SkipSavingFrames"));
 const QString LOADPATH_KEY(QStringLiteral("LoadPath"));
 const QString REPLAYFPS_KEY(QStringLiteral("ReplayFps"));
+const QString VIDEOJSON(QStringLiteral("Video.json"));
 }
 
 MainController::MainController(QObject* parent)
@@ -506,6 +507,16 @@ void MainController::saveSingleFrame()
 QString MainController::loadPath() const
 {
     return _loadPath;
+}
+
+void MainController::loadVideo()
+{
+    _video.load(_loadPath, VIDEOJSON);
+}
+
+void MainController::saveVideo()
+{
+    _video.save(_loadPath, VIDEOJSON);
 }
 
 QString MainController::replayFps() const

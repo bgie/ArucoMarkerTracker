@@ -19,7 +19,9 @@ TEMPLATE = subdirs
 SUBDIRS = \
     app \
     lib \
-    tests
+    tests \
+    calc
 
 app.depends = lib
 tests.depends = lib
+calc.depends = lib

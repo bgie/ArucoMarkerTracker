@@ -17,32 +17,31 @@
 #ifndef MARKER_H
 #define MARKER_H
 
+#include <QJsonObject>
 #include <QObject>
-#include <QPointF>
-#include <QVariantList>
 #include <QVector3D>
-#include <QVector>
 
 class Marker : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int id READ id CONSTANT)
-    Q_PROPERTY(QVariantList corners READ cornersQVariants CONSTANT)
     Q_PROPERTY(QVector3D position READ position CONSTANT)
 
 public:
-    explicit Marker(int id, QVector<QPointF> corners, QVector3D position, QObject* parent = nullptr);
+    explicit Marker(int id, const QVector3D& position, const QVector3D& rotation, QObject* parent = nullptr);
+    explicit Marker(QJsonObject object, QObject* parent = nullptr);
     virtual ~Marker() override;
 
     int id() const;
-    QVector<QPointF> corners() const;
-    QVariantList cornersQVariants() const;
     const QVector3D& position() const;
+    const QVector3D& rotation() const;
+
+    QJsonObject toJson() const;
 
 private:
     int _id;
-    QVector<QPointF> _corners;
     QVector3D _position;
+    QVector3D _rotation;
 };
 
 #endif // MARKER_H

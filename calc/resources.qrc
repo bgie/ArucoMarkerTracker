@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>TestVideo.json</file>
+        <file>TanksVideo.json</file>
+    </qresource>
+</RCC>

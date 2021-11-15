@@ -16,6 +16,7 @@
 */
 #include "ArucoDetector.h"
 #include "MarkerTracker.h"
+#include <QHash>
 #include <QString>
 #include <QVector3D>
 #include <QtConcurrent/QtConcurrentMap>
@@ -34,7 +35,7 @@ const float ANNOTATE_AXIS_LENGTH = 25.0f;
 struct ArucoDetectorData {
     Ptr<Dictionary> dictionary;
     Ptr<DetectorParameters> parameters;
-    MarkerTracker tracker;
+    QHash<int, MarkerTracker*> trackers;
 };
 
 ArucoDetector::ArucoDetector()
@@ -53,6 +54,7 @@ ArucoDetector::ArucoDetector()
 
 ArucoDetector::~ArucoDetector()
 {
+    qDeleteAll(_d->trackers.values());
 }
 
 void ArucoDetector::detectAruco(QImage& image, cv::Mat cameraMatrix, cv::Mat distCoeffs, bool kallmanFilter)
@@ -65,35 +67,47 @@ void ArucoDetector::detectAruco(QImage& image, cv::Mat cameraMatrix, cv::Mat dis
     cv::Mat view(image.height(), image.width(), CV_8UC3, (void*)image.constBits(), image.bytesPerLine());
     detectMarkers(view, _d->dictionary, markerCorners, markerIds, _d->parameters, cv::noArray());
 
-    drawDetectedMarkers(view, markerCorners, markerIds);
+    // drawDetectedMarkers(view, markerCorners, markerIds);
 
     if (!cameraMatrix.empty() && !distCoeffs.empty()) {
         std::vector<cv::Vec3d> rvecs, tvecs;
         estimatePoseSingleMarkers(markerCorners, ARUCO_MARKER_SIZE_MM, cameraMatrix, distCoeffs, rvecs, tvecs);
 
-        int niceMarkerIndex = -1;
-        for (size_t i = 0; i < rvecs.size(); ++i) {
-            drawAxis(view, cameraMatrix, distCoeffs, rvecs.at(i), tvecs.at(i), ANNOTATE_AXIS_LENGTH);
+        QSet<int> foundIds;
 
-            if (markerIds.at(i) == 1) {
-                niceMarkerIndex = i;
+        for (size_t i = 0; i < rvecs.size(); ++i) {
+            cv::Vec3d rvec = rvecs.at(i);
+            cv::Vec3d tvec = tvecs.at(i);
+
+            if (kallmanFilter) {
+                int id = markerIds.at(i);
+                foundIds.insert(id);
+                MarkerTracker* tracker = _d->trackers.value(id);
+                if (!tracker) {
+                    _d->trackers.insert(id, tracker = new MarkerTracker());
+                } else {
+                    tracker->predict(1000.0f / 30.0f);
+                }
+                tracker->update(QVector3D(tvec[0], tvec[1], tvec[2]), QVector3D(rvec[0], rvec[1], rvec[2]));
             }
 
-            //            cv::Vec3d filteredPos;
-            //            std::vector<Point2f> imagePoints2;
-            //            projectPoints(filteredPos, rvecs[i], tvecs[i], cameraMatrix, distCoeffs, imagePoints2);
+            if (!kallmanFilter) {
+                drawAxis(view, cameraMatrix, distCoeffs, rvec, tvec, ANNOTATE_AXIS_LENGTH);
+            }
         }
-
         if (kallmanFilter) {
-            _d->tracker.predict(1000.0f / 30.0f);
-            if (niceMarkerIndex >= 0) {
-                int i = niceMarkerIndex;
-                QVector3D position(tvecs.at(i)[0], tvecs.at(i)[1], tvecs.at(i)[2]);
-                _d->tracker.update(position);
-                qDebug() << "Actual x:" << tvecs.at(i)[0] << " y:" << tvecs.at(i)[1];
+            for (auto it = _d->trackers.constBegin(); it != _d->trackers.constEnd(); ++it) {
+                if (!foundIds.contains(it.key())) {
+                    it.value()->updateNotFound();
+                }
 
-            } else {
-                _d->tracker.updateNotFound();
+                if (it.value()->hasPosition()) {
+                    QVector3D pos = it.value()->position();
+                    QVector3D rot = it.value()->rotation();
+                    cv::Vec3d tvec(pos.x(), pos.y(), pos.z());
+                    cv::Vec3d rvec(rot.x(), rot.y(), rot.z());
+                    drawAxis(view, cameraMatrix, distCoeffs, rvec, tvec, ANNOTATE_AXIS_LENGTH);
+                }
             }
         }
     }
@@ -119,12 +133,9 @@ void ArucoDetector::detectAllMarkers(QList<Frame*> frames, cv::Mat cameraMatrix,
 
             QList<Marker*> markers;
             for (size_t i = 0; i < markerIds.size(); ++i) {
-                QVector<QPointF> corners;
-                for (const Point2f& p : markerCorners.at(i)) {
-                    corners.push_back(QPointF(p.x, p.y));
-                }
                 QVector3D position(tvecs.at(i)[0], tvecs.at(i)[1], tvecs.at(i)[2]);
-                markers << new Marker(markerIds.at(i), corners, position);
+                QVector3D rotation(rvecs.at(i)[0], rvecs.at(i)[1], rvecs.at(i)[2]);
+                markers << new Marker(markerIds.at(i), position, rotation);
             }
             qSort(markers.begin(), markers.end(), [](Marker* a, Marker* b) -> bool { return a->id() < b->id(); });
             frame->setMarkers(markers);

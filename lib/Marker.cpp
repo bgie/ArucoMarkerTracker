@@ -16,12 +16,30 @@
 */
 #include "Marker.h"
 
-Marker::Marker(int id, QVector<QPointF> corners, QVector3D position, QObject* parent)
+namespace {
+const QString ID(QStringLiteral("id"));
+const QString POS_X(QStringLiteral("pos_x"));
+const QString POS_Y(QStringLiteral("pos_y"));
+const QString POS_Z(QStringLiteral("pos_z"));
+const QString ROT_X(QStringLiteral("rot_x"));
+const QString ROT_Y(QStringLiteral("rot_y"));
+const QString ROT_Z(QStringLiteral("rot_z"));
+}
+
+Marker::Marker(int id, const QVector3D& position, const QVector3D& rotation, QObject* parent)
     : QObject(parent)
     , _id(id)
-    , _corners(corners)
     , _position(position)
+    , _rotation(rotation)
 {
+}
+
+Marker::Marker(QJsonObject obj, QObject* parent)
+    : QObject(parent)
+{
+    _id = obj[ID].toInt();
+    _position = QVector3D(obj[POS_X].toDouble(), obj[POS_Y].toDouble(), obj[POS_Z].toDouble());
+    _rotation = QVector3D(obj[ROT_X].toDouble(), obj[ROT_Y].toDouble(), obj[ROT_Z].toDouble());
 }
 
 Marker::~Marker()
@@ -33,21 +51,25 @@ int Marker::id() const
     return _id;
 }
 
-QVector<QPointF> Marker::corners() const
-{
-    return _corners;
-}
-
-QVariantList Marker::cornersQVariants() const
-{
-    QVariantList result;
-    for (auto corner : _corners) {
-        result.append(QVariant(corner));
-    }
-    return result;
-}
-
 const QVector3D& Marker::position() const
 {
     return _position;
+}
+
+const QVector3D& Marker::rotation() const
+{
+    return _rotation;
+}
+
+QJsonObject Marker::toJson() const
+{
+    QJsonObject obj;
+    obj.insert(ID, QJsonValue(_id));
+    obj.insert(POS_X, QJsonValue(_position.x()));
+    obj.insert(POS_Y, QJsonValue(_position.y()));
+    obj.insert(POS_Z, QJsonValue(_position.z()));
+    obj.insert(ROT_X, QJsonValue(_rotation.x()));
+    obj.insert(ROT_Y, QJsonValue(_rotation.y()));
+    obj.insert(ROT_Z, QJsonValue(_rotation.z()));
+    return obj;
 }

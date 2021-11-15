@@ -31,6 +31,8 @@ public:
     virtual ~Video() override;
 
     void load(QString path);
+    void load(QString path, QString filename);
+    bool save(QString path, QString filename) const;
 
     QList<QObject*> framesQObjects() const;
     QList<Frame*> frames() const;

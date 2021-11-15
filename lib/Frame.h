@@ -18,8 +18,10 @@
 #define FRAME_H
 
 #include "Marker.h"
+#include <QDir>
 #include <QFuture>
 #include <QImage>
+#include <QJsonObject>
 #include <QObject>
 
 class Frame : public QObject
@@ -30,16 +32,19 @@ class Frame : public QObject
     Q_PROPERTY(QList<QObject*> markers READ markersQObjects NOTIFY markersChanged)
 
 public:
-    explicit Frame(QString fileName, QString fullFileName, QObject* parent = nullptr);
+    explicit Frame(QDir path, QString fileName, QObject* parent = nullptr);
+    explicit Frame(QDir path, QJsonObject object, QObject* parent = nullptr);
     virtual ~Frame() override;
 
     QString fileName() const;
-    QImage image() const;
+    QImage image();
 
     QString chessBoardReprojectionError() const;
 
     QList<QObject*> markersQObjects() const;
     QList<Marker*> markers() const;
+
+    QJsonObject toJson() const;
 
 public slots:
     void setChessBoardReprojectionError(QString chessBoardReprojectionError);
@@ -50,6 +55,10 @@ signals:
     void markersChanged();
 
 private:
+    void loadImage();
+
+private:
+    const QDir _path;
     const QString _fileName;
     QFuture<QImage> _image;
     QString _chessBoardReprojectionError;

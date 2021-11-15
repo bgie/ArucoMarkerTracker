@@ -182,7 +182,6 @@ void Camera::startStream()
         struct v4l2_streamparm fps;
         memset(&fps, 0, sizeof(fps));
         fps.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        qDebug() << "hebbes" << format.fps.first << " " << format.fps.second;
         fps.parm.capture.timeperframe.denominator = format.fps.first;
         fps.parm.capture.timeperframe.numerator = format.fps.second;
         if (-1 == xioctl(_d->fd, VIDIOC_S_PARM, &fps)) {

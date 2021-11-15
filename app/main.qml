@@ -267,6 +267,22 @@ Window {
             Row {
                 spacing: Style.smallMargin
                 MyLabel {
+                    text: "Video.json"
+                    verticalAlignment: Qt.AlignVCenter
+                    height: parent.height
+                }
+                MyButton {
+                    text: "Load"
+                    onClicked: controller.loadVideo()
+                }
+                MyButton {
+                    text: "Save"
+                    onClicked: controller.saveVideo()
+                }
+            }
+            Row {
+                spacing: Style.smallMargin
+                MyLabel {
                     text: "Auto play"
                     verticalAlignment: Qt.AlignVCenter
                     height: parent.height

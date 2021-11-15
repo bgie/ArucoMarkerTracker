@@ -25,15 +25,34 @@ struct MarkerTrackerData;
 class MarkerTracker
 {
 public:
-    MarkerTracker();
+    class Params {
+    public:
+        Params();
+
+        double positionXYProcessNoiseCov;
+        double positionZProcessNoiseCov;
+        double velocityXYProcessNoiseCov;
+        double velocityZProcessNoiseCov;
+        double measurementXYNoiseCov;
+        double measurementZNoiseCov;
+        double positionXYerrorCovPost;
+        double positionZerrorCovPost;
+        double velocityXYerrorCovPost;
+        double velocityZerrorCovPost;
+        double posVelXYProcessNoiseCov;
+        double posVelZProcessNoiseCov;
+    };
+
+    MarkerTracker(const Params& p = Params());
     ~MarkerTracker();
 
-    void update(const QVector3D& position);
+    void update(const QVector3D& position, const QVector3D& rotation);
     void updateNotFound();
-    void predict(float elapsedMsec);
+    void predict(double elapsedMsec);
 
     bool hasPosition() const;
     QVector3D position() const;
+    QVector3D rotation() const;
 
 private:
     QScopedPointer<MarkerTrackerData> _d;
