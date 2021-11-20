@@ -77,6 +77,11 @@ QList<Marker*> Frame::markers() const
     return _markers;
 }
 
+QList<Marker*> Frame::filteredMarkers() const
+{
+    return _filteredMarkers;
+}
+
 QJsonObject Frame::toJson() const
 {
     QJsonObject obj;
@@ -107,11 +112,20 @@ void Frame::setMarkers(QList<Marker*> list)
     }
 }
 
+void Frame::setFilteredMarkers(QList<Marker*> list)
+{
+    if (_filteredMarkers != list) {
+        qDeleteAll(_filteredMarkers.toSet() - list.toSet());
+        _filteredMarkers = list;
+    }
+}
+
 void Frame::loadImage()
 {
     if (_image.isCanceled()) {
-        _image = QtConcurrent::run([=]() -> QImage {
-            return QImage(_path.absoluteFilePath(_fileName)).convertToFormat(QImage::Format_RGB888);
+        QString fullFileName = _path.absoluteFilePath(_fileName);
+        _image = QtConcurrent::run([fullFileName]() -> QImage {
+            return QImage(fullFileName).convertToFormat(QImage::Format_RGB888);
         });
     }
 }

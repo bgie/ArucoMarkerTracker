@@ -18,26 +18,18 @@
 #include <QDebug>
 #include <opencv2/video/tracking.hpp>
 
-const int NOTFOUND_COUNTDOWN_START = 90;
+const int NOTFOUND_COUNTDOWN_START = 300;
 const int stateSize = 6;
 const int measSize = 3;
 const int contrSize = 0;
 
-// QVector(10, 0, 20480, 8192, 0.21875, 48, 64, 28, 64, 448, 32, 448)
-
-MarkerTracker::Params::Params()
-    : positionXYProcessNoiseCov(10)
-    , positionZProcessNoiseCov(0)
-    , velocityXYProcessNoiseCov(20480)
-    , velocityZProcessNoiseCov(8192)
-    , measurementXYNoiseCov(0.21875)
-    , measurementZNoiseCov(48)
-    , positionXYerrorCovPost(64)
-    , positionZerrorCovPost(28)
-    , velocityXYerrorCovPost(64)
-    , velocityZerrorCovPost(448)
-    , posVelXYProcessNoiseCov(32)
-    , posVelZProcessNoiseCov(448)
+MarkerTracker::Params::Params(double positionXYProcessNoiseCov, double positionZProcessNoiseCov, double velocityXYProcessNoiseCov, double velocityZProcessNoiseCov, double measurementXYNoiseCov, double measurementZNoiseCov)
+    : positionXYProcessNoiseCov(positionXYProcessNoiseCov)
+    , positionZProcessNoiseCov(positionZProcessNoiseCov)
+    , velocityXYProcessNoiseCov(velocityXYProcessNoiseCov)
+    , velocityZProcessNoiseCov(velocityZProcessNoiseCov)
+    , measurementXYNoiseCov(measurementXYNoiseCov)
+    , measurementZNoiseCov(measurementZNoiseCov)
 {
 }
 
@@ -48,6 +40,14 @@ struct MarkerTrackerData {
         , state(stateSize, 1, CV_64F)
         , meas(measSize, 1, CV_64F)
         , notFoundCountDown(0)
+    {
+        setParams(p);
+
+        // Posteriori Error Covariance Matrix
+        cv::setIdentity(kf.errorCovPost);
+    }
+
+    void setParams(const MarkerTracker::Params& p)
     {
         // Transition State Matrix A
         // Note: set dT at each processing step!
@@ -81,22 +81,11 @@ struct MarkerTrackerData {
         kf.processNoiseCov.at<double>(14) = p.positionZProcessNoiseCov;
         kf.processNoiseCov.at<double>(21) = kf.processNoiseCov.at<double>(28) = p.velocityXYProcessNoiseCov;
         kf.processNoiseCov.at<double>(35) = p.velocityZProcessNoiseCov;
-        kf.processNoiseCov.at<double>(3) = kf.processNoiseCov.at<double>(10) = p.posVelXYProcessNoiseCov;
-        kf.processNoiseCov.at<double>(18) = kf.processNoiseCov.at<double>(25) = p.posVelXYProcessNoiseCov;
-        kf.processNoiseCov.at<double>(17) = p.posVelZProcessNoiseCov;
-        kf.processNoiseCov.at<double>(32) = p.posVelZProcessNoiseCov;
 
         // Measures Noise Covariance Matrix R
-        cv::setIdentity(kf.measurementNoiseCov);
-        kf.measurementNoiseCov.at<double>(0) = kf.measurementNoiseCov.at<double>(5) = p.measurementXYNoiseCov;
-        kf.measurementNoiseCov.at<double>(10) = p.measurementZNoiseCov;
-
-        // Posteriori Error Covariance Matrix
-        cv::setIdentity(kf.errorCovPost);
-        kf.errorCovPost.at<double>(0) = kf.errorCovPost.at<double>(7) = p.positionXYerrorCovPost;
-        kf.errorCovPost.at<double>(14) = p.positionZerrorCovPost;
-        kf.errorCovPost.at<double>(21) = kf.errorCovPost.at<double>(28) = p.velocityXYerrorCovPost;
-        kf.errorCovPost.at<double>(35) = p.velocityZerrorCovPost;
+        cv::setIdentity(kf.measurementNoiseCov, cv::Scalar::all(p.measurementXYNoiseCov));
+        kf.measurementNoiseCov.at<double>(0) = kf.measurementNoiseCov.at<double>(4) = p.measurementXYNoiseCov;
+        kf.measurementNoiseCov.at<double>(8) = p.measurementZNoiseCov;
     }
 
     void update(const QVector3D& position)
@@ -155,6 +144,11 @@ MarkerTracker::~MarkerTracker()
 {
 }
 
+void MarkerTracker::setParams(const MarkerTracker::Params& p)
+{
+    _d->setParams(p);
+}
+
 void MarkerTracker::update(const QVector3D& position, const QVector3D& rotation)
 {
     _d->update(position);
@@ -184,4 +178,17 @@ QVector3D MarkerTracker::position() const
 QVector3D MarkerTracker::rotation() const
 {
     return _d->rotation;
+}
+
+const MarkerTracker::Params& MarkerTracker::movingTanksParams()
+{
+    static const Params result(10, 30, 10, 30, 3, 3);
+    //    static const Params result(1e-5, 1e-8, 1e-5, 1e-8, 1, 1);
+    return result;
+}
+
+const MarkerTracker::Params& MarkerTracker::staticMarkerParams()
+{
+    static const Params result(1e-7, 1e-10, 1e-7, 1e-10, 1, 1);
+    return result;
 }

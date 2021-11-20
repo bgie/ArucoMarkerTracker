@@ -25,26 +25,26 @@ struct MarkerTrackerData;
 class MarkerTracker
 {
 public:
-    class Params {
-    public:
-        Params();
-
+    struct Params {
         double positionXYProcessNoiseCov;
         double positionZProcessNoiseCov;
         double velocityXYProcessNoiseCov;
         double velocityZProcessNoiseCov;
         double measurementXYNoiseCov;
         double measurementZNoiseCov;
-        double positionXYerrorCovPost;
-        double positionZerrorCovPost;
-        double velocityXYerrorCovPost;
-        double velocityZerrorCovPost;
-        double posVelXYProcessNoiseCov;
-        double posVelZProcessNoiseCov;
+
+        Params(double positionXYProcessNoiseCov = 1e-5,
+            double positionZProcessNoiseCov = 1e-8,
+            double velocityXYProcessNoiseCov = 1e-5,
+            double velocityZProcessNoiseCov = 1e-8,
+            double measurementXYNoiseCov = 1,
+            double measurementZNoiseCov = 1);
     };
 
     MarkerTracker(const Params& p = Params());
     ~MarkerTracker();
+
+    void setParams(const Params& p);
 
     void update(const QVector3D& position, const QVector3D& rotation);
     void updateNotFound();
@@ -53,6 +53,9 @@ public:
     bool hasPosition() const;
     QVector3D position() const;
     QVector3D rotation() const;
+
+    static const Params& movingTanksParams();
+    static const Params& staticMarkerParams();
 
 private:
     QScopedPointer<MarkerTrackerData> _d;

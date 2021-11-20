@@ -267,22 +267,6 @@ Window {
             Row {
                 spacing: Style.smallMargin
                 MyLabel {
-                    text: "Video.json"
-                    verticalAlignment: Qt.AlignVCenter
-                    height: parent.height
-                }
-                MyButton {
-                    text: "Load"
-                    onClicked: controller.loadVideo()
-                }
-                MyButton {
-                    text: "Save"
-                    onClicked: controller.saveVideo()
-                }
-            }
-            Row {
-                spacing: Style.smallMargin
-                MyLabel {
                     text: "Auto play"
                     verticalAlignment: Qt.AlignVCenter
                     height: parent.height
@@ -382,6 +366,22 @@ Window {
                 text: "Detect aruco in all"
                 onClicked: controller.detectArucoInAll()
             }
+            Row {
+                spacing: Style.smallMargin
+                MyLabel {
+                    text: "Video.json"
+                    verticalAlignment: Qt.AlignVCenter
+                    height: parent.height
+                }
+                MyButton {
+                    text: "Load"
+                    onClicked: controller.loadVideo()
+                }
+                MyButton {
+                    text: "Save"
+                    onClicked: controller.saveVideo()
+                }
+            }
 
             MyCheckBox {
                 text: "Show detected checkerboard"
@@ -399,10 +399,11 @@ Window {
                 onCheckedChanged: controller.detectArucoEnabled = checked
             }
             MyCheckBox {
-                text: "Kallman filtered tracking"
+                text: "Kalman filtered tracking"
                 checked: controller.kallmanFilterEnabled
                 onCheckedChanged: controller.kallmanFilterEnabled = checked
             }
+
             ListView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true

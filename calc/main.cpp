@@ -55,13 +55,24 @@ public:
         double error = 0.;
 
         for (auto it = log.constBegin(); it != log.constEnd(); ++it) {
-            for (const auto& entry : it.value()) {
-                if (entry.hasMarker && entry.isPredicted) {
-                    auto predictionDistance = entry.markerPosition.distanceToPoint(entry.predictPosition);
-                    auto updateDistance = 1e7 * entry.markerPosition.distanceToPoint(entry.updatePosition);
-
-                    error += (predictionDistance * predictionDistance) + (updateDistance * updateDistance);
+            if (it.key() == 45) {
+                QVector3D sum;
+                int count = 0;
+                for (const auto& entry : it.value()) {
+                    if (entry.hasMarker) {
+                        sum += entry.updatePosition;
+                        count++;
+                    }
                 }
+                QVector3D avg = sum / count;
+                QVector3D errsum;
+                for (const auto& entry : it.value()) {
+                    if (entry.hasMarker) {
+                        QVector3D err = entry.updatePosition - avg;
+                        errsum += err * err;
+                    }
+                }
+                error = errsum.x() + errsum.y() + errsum.z();
             }
         }
         return error;
@@ -97,22 +108,24 @@ public:
         if (file.open(QIODevice::WriteOnly)) {
             QTextStream stream(&file);
 
-            for (auto it = log.constBegin(); it != log.constEnd(); ++it) {
-                stream << "id," << it.key() << "\n";
-                stream << "frame,marker_x,marker_y,marker_z,predict_x,predict_y,predict_z,update_x,update_y,update_z,predict_dist,update_dist\n";
+            for (int id = _minId; id < _maxId; ++id)
+                if (_allIds.contains(id)) {
+                    const auto& entries = log.value(id);
+                    stream << "id," << id << "\n";
+                    stream << "frame,marker_x,marker_y,marker_z,predict_x,predict_y,predict_z,update_x,update_y,update_z,predict_dist,update_dist\n";
 
-                for (int i = 0; i < it.value().size(); ++i) {
-                    const auto& entry = it.value().at(i);
-                    stream << i;
-                    writeVectorIfExists(stream, entry.markerPosition, entry.hasMarker);
-                    writeVectorIfExists(stream, entry.predictPosition, entry.isPredicted);
-                    writeVectorIfExists(stream, entry.updatePosition, entry.hasMarker);
-                    stream << "," << entry.markerPosition.distanceToPoint(entry.predictPosition);
-                    stream << "," << entry.markerPosition.distanceToPoint(entry.updatePosition);
+                    for (int i = 0; i < entries.size(); ++i) {
+                        const auto& entry = entries.at(i);
+                        stream << i;
+                        writeVectorIfExists(stream, entry.markerPosition, entry.hasMarker);
+                        writeVectorIfExists(stream, entry.predictPosition, entry.isPredicted);
+                        writeVectorIfExists(stream, entry.updatePosition, entry.hasMarker);
+                        stream << "," << entry.markerPosition.distanceToPoint(entry.predictPosition);
+                        stream << "," << entry.markerPosition.distanceToPoint(entry.updatePosition);
+                        stream << "\n";
+                    }
                     stream << "\n";
                 }
-                stream << "\n";
-            }
         }
     }
 
@@ -127,12 +140,6 @@ public:
         p.velocityZProcessNoiseCov = genome.at(3);
         p.measurementXYNoiseCov = genome.at(4);
         p.measurementZNoiseCov = genome.at(5);
-        p.positionXYerrorCovPost = genome.at(6);
-        p.positionZerrorCovPost = genome.at(7);
-        p.velocityXYerrorCovPost = genome.at(8);
-        p.velocityZerrorCovPost = genome.at(9);
-        p.posVelXYProcessNoiseCov = genome.at(10);
-        p.posVelZProcessNoiseCov = genome.at(11);
 
         // create a tracker and result vector for every id
         QHash<int, MarkerTracker*> trackers;        
@@ -197,10 +204,10 @@ int main(int argc, char* argv[])
     video.load(QStringLiteral(":/"), QStringLiteral("TanksVideo.json"));
 
     const int genomeCount = 12;
-    const float minGeneInit = 0.f;
+    const float minGeneInit = 1e-7f;
     const float maxGeneInit = 1e2;
-    const float minGeneValue = 0.f;
-    const float maxGeneValue = 1e9f;
+    const float minGeneValue = 1e-7f;
+    const float maxGeneValue = 1e7f;
     const float mutationMulProbability = 0.1f;
     const float mutationMulStdDev = 0.8f;
     const float mutationAddProbability = 0.1f;

@@ -43,12 +43,14 @@ public:
 
     QList<QObject*> markersQObjects() const;
     QList<Marker*> markers() const;
+    QList<Marker*> filteredMarkers() const;
 
     QJsonObject toJson() const;
 
 public slots:
     void setChessBoardReprojectionError(QString chessBoardReprojectionError);
     void setMarkers(QList<Marker*> list);
+    void setFilteredMarkers(QList<Marker*> list);
 
 signals:
     void chessBoardReprojectionErrorChanged(QString chessBoardReprojectionError);
@@ -63,6 +65,7 @@ private:
     QFuture<QImage> _image;
     QString _chessBoardReprojectionError;
     QList<Marker*> _markers;
+    QList<Marker*> _filteredMarkers;
 };
 
 #endif // FRAME_H

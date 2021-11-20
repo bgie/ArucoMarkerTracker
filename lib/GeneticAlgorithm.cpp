@@ -116,7 +116,7 @@ Genome GenomeLab::reproduce(const Genome firstParent, const Genome otherParent) 
 Genome& GenomeLab::clip(Genome& victim) const
 {
     for (int i = 0; i < victim.size(); ++i) {
-        *reinterpret_cast<uint32_t*>(&victim[i]) &= 0xFFC00000;
+        //*reinterpret_cast<uint32_t*>(&victim[i]) &= 0xFFC00000;
 
         if (victim[i] < _clipGeneMin) {
             victim[i] = _clipGeneMin;

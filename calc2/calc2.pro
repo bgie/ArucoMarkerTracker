@@ -14,40 +14,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-TEMPLATE = lib
-CONFIG += staticlib c++17
-QT += quick widgets concurrent
+TEMPLATE = app
+CONFIG += c++17
+QT += quick widgets concurrent testlib
 
+include(../link_lib.pri)
 include(../link_opencv.pri)
 
-HEADERS += \
-    ArucoDetector.h \
-    Camera.h \
-    CameraCalibration.h \
-    CameraReader.h \
-    Frame.h \
-    ImageSaver.h \
-    MainController.h \
-    Marker.h \
-    MarkerTracker.h \
-    ReplayTimer.h \
-    SimpleTracker.h \
-    TrackAllMarkers.h \
-    Video.h \
-    GeneticAlgorithm.h
+HEADERS +=
+
 
 SOURCES += \
-    ArucoDetector.cpp \
-    Camera.cpp \
-    CameraCalibration.cpp \
-    CameraReader.cpp \
-    Frame.cpp \
-    ImageSaver.cpp \
-    MainController.cpp \
-    Marker.cpp \
-    MarkerTracker.cpp \
-    ReplayTimer.cpp \
-    SimpleTracker.cpp \
-    TrackAllMarkers.cpp \
-    Video.cpp \
-    GeneticAlgorithm.cpp
+    main.cpp
+
+RESOURCES += resources.qrc

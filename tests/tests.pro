@@ -24,11 +24,13 @@ include(../link_opencv.pri)
 HEADERS += \
     TestFactory.h \
     TestGeneraticAlgorithm.h \
+    TestSimpleTracker.h \
     TestSourceCode.h
 
 SOURCES += \
     TestFactory.cpp \
     TestGeneraticAlgorithm.cpp \
+    TestSimpleTracker.cpp \
     TestSourceCode.cpp \
     main.cpp
 

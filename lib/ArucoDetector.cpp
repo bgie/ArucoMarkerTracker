@@ -84,9 +84,9 @@ void ArucoDetector::detectAruco(QImage& image, cv::Mat cameraMatrix, cv::Mat dis
                 foundIds.insert(id);
                 MarkerTracker* tracker = _d->trackers.value(id);
                 if (!tracker) {
-                    _d->trackers.insert(id, tracker = new MarkerTracker());
+                    _d->trackers.insert(id, tracker = new MarkerTracker(id == 46 ? MarkerTracker::movingTanksParams() : MarkerTracker::staticMarkerParams()));
                 } else {
-                    tracker->predict(1000.0f / 30.0f);
+                    tracker->predict(1000.0 / 30.0);
                 }
                 tracker->update(QVector3D(tvec[0], tvec[1], tvec[2]), QVector3D(rvec[0], rvec[1], rvec[2]));
             }
@@ -98,6 +98,7 @@ void ArucoDetector::detectAruco(QImage& image, cv::Mat cameraMatrix, cv::Mat dis
         if (kallmanFilter) {
             for (auto it = _d->trackers.constBegin(); it != _d->trackers.constEnd(); ++it) {
                 if (!foundIds.contains(it.key())) {
+                    it.value()->predict(1000.0 / 30.0);
                     it.value()->updateNotFound();
                 }
 
