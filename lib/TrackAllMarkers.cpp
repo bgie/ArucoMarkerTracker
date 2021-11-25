@@ -20,14 +20,14 @@
 #include <algorithm>
 #include <math.h>
 
-void trackAllMarkers(QList<Frame*> frames, double msecsPerFrame, const MarkerTracker::Params& p)
+void trackAllMarkers(QList<Frame*> frames, double msecsPerFrame, const KalmanTracker3D::Params& p)
 {
     QList<int> allIds = getAllMarkerIds(frames, false);
 
     // create a tracker and result vector for every id
-    QHash<int, MarkerTracker*> trackers;
+    QHash<int, KalmanTracker3D*> trackers;
     for (auto id : allIds) {
-        trackers.insert(id, new MarkerTracker(p));
+        trackers.insert(id, new KalmanTracker3D(p));
     }
 
     // track every marker id in time
@@ -42,7 +42,7 @@ void trackAllMarkers(QList<Frame*> frames, double msecsPerFrame, const MarkerTra
             int id = marker->id();
             foundIds.insert(id);
 
-            MarkerTracker* tracker = trackers.value(id);
+            KalmanTracker3D* tracker = trackers.value(id);
             tracker->predict(msecsPerFrame);
             tracker->update(marker->position(), marker->rotation());
 
@@ -52,9 +52,8 @@ void trackAllMarkers(QList<Frame*> frames, double msecsPerFrame, const MarkerTra
         // predict markers that are not found
         for (int id : allIds) {
             if (!foundIds.contains(id)) {
-                MarkerTracker* tracker = trackers.value(id);
+                KalmanTracker3D* tracker = trackers.value(id);
                 tracker->predict(msecsPerFrame);
-                tracker->updateNotFound();
 
                 if (tracker->hasPosition()) {
                     filteredMarkers << new Marker(id, tracker->position(), tracker->rotation());
@@ -76,20 +75,21 @@ void writeAllMarkersToCsv(QList<Frame*> frames, QString writeCsvFilename, bool d
 
         for (int id : allIds) {
             stream << "id," << id << "\n";
-            stream << "frame,x_measured,x_filtered,dist,y_measured,y_filtered,dist,z_measured,z_filtered,dist\n";
+            stream << "frame,x_measured,x_filtered,dist,y_measured,y_filtered,dist,z_measured,z_filtered,dist,x_rotation,y_rotation,z_rotation\n";
 
             QVector3D measuredSum, filteredSum;
             QVector<QVector3D> allMeasured, allFiltered;
 
             for (int frameIndex = 0; frameIndex < frames.size(); ++frameIndex) {
                 Frame* frame = frames.at(frameIndex);
-                QVector3D measured, filtered;
+                QVector3D measured, filtered, rotation;
                 auto markerIt = std::find_if(
                     frame->markers().constBegin(), frame->markers().constEnd(),
                     [id](Marker* m) { return m->id() == id; });
                 bool hasMeasurement = markerIt != frame->markers().constEnd();
                 if (hasMeasurement) {
                     measured = (*markerIt)->position();
+                    rotation = (*markerIt)->rotation();
                     measuredSum += measured;
                     allMeasured << measured;
                 }
@@ -140,6 +140,18 @@ void writeAllMarkersToCsv(QList<Frame*> frames, QString writeCsvFilename, bool d
                     stream << ",";
                     if (hasMeasurement && hasFiltered) {
                         stream << filtered.z() - measured.z();
+                    }
+                    stream << ",";
+                    if (hasMeasurement) {
+                        stream << rotation.x();
+                    }
+                    stream << ",";
+                    if (hasMeasurement) {
+                        stream << rotation.y();
+                    }
+                    stream << ",";
+                    if (hasMeasurement) {
+                        stream << rotation.z();
                     }
                     stream << "\n";
                 }

@@ -26,11 +26,12 @@ const QString ROT_Y(QStringLiteral("rot_y"));
 const QString ROT_Z(QStringLiteral("rot_z"));
 }
 
-Marker::Marker(int id, const QVector3D& position, const QVector3D& rotation, QObject* parent)
+Marker::Marker(int id, const QVector3D& position, const QVector3D& rotation, QPointF screenPos, QObject* parent)
     : QObject(parent)
     , _id(id)
     , _position(position)
     , _rotation(rotation)
+    , _screenPos(screenPos)
 {
 }
 
@@ -59,6 +60,11 @@ const QVector3D& Marker::position() const
 const QVector3D& Marker::rotation() const
 {
     return _rotation;
+}
+
+const QPointF& Marker::screenPos() const
+{
+    return _screenPos;
 }
 
 QJsonObject Marker::toJson() const

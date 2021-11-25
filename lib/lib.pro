@@ -27,11 +27,12 @@ HEADERS += \
     CameraReader.h \
     Frame.h \
     ImageSaver.h \
+    KalmanTracker1D.h \
+    KalmanTracker3D.h \
     MainController.h \
     Marker.h \
-    MarkerTracker.h \
+    ReferencePlaneTracker.h \
     ReplayTimer.h \
-    SimpleTracker.h \
     TrackAllMarkers.h \
     Video.h \
     GeneticAlgorithm.h
@@ -43,11 +44,12 @@ SOURCES += \
     CameraReader.cpp \
     Frame.cpp \
     ImageSaver.cpp \
+    KalmanTracker1D.cpp \
+    KalmanTracker3D.cpp \
     MainController.cpp \
     Marker.cpp \
-    MarkerTracker.cpp \
+    ReferencePlaneTracker.cpp \
     ReplayTimer.cpp \
-    SimpleTracker.cpp \
     TrackAllMarkers.cpp \
     Video.cpp \
     GeneticAlgorithm.cpp

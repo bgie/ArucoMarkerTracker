@@ -1,11 +1,20 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>MyLabel.qml</file>
+        <file>img/recordLight.png</file>
+        <file>img/cameraBlack.png</file>
+        <file>img/recordDark.png</file>
+        <file>img/cameraWhite.png</file>
+        <file>CameraPanel.qml</file>
+        <file>RecordPanel.qml</file>
+        <file>controls/DelayedMouseLeaveArea.qml</file>
+        <file>controls/MyLabel.qml</file>
         <file>Style.qml</file>
-        <file>MyTextEdit.qml</file>
-        <file>MyButton.qml</file>
-        <file>MyComboBox.qml</file>
-        <file>MyCheckBox.qml</file>
+        <file>controls/MyTextEdit.qml</file>
+        <file>controls/MyButton.qml</file>
+        <file>controls/MyComboBox.qml</file>
+        <file>controls/MyCheckBox.qml</file>
+        <file>controls/MyTabButton.qml</file>
+        <file>controls/MyToolButton.qml</file>
     </qresource>
 </RCC>

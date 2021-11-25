@@ -20,34 +20,33 @@
 #include <QScopedPointer>
 #include <QVector3D>
 
-struct MarkerTrackerData;
-
-class MarkerTracker
-{
+class KalmanTracker3D {
 public:
     struct Params {
+        Params(
+            double positionXYProcessNoiseCov = 1e-5,
+            double positionZProcessNoiseCov = 1e-8,
+            double velocityXYProcessNoiseCov = 1e-5,
+            double velocityZProcessNoiseCov = 1e-8,
+            double measurementXYNoiseCov = 1,
+            double measurementZNoiseCov = 1,
+            bool useTimeout = true,
+            double notUpdatedTimeoutInMsec = 3000);
+
         double positionXYProcessNoiseCov;
         double positionZProcessNoiseCov;
         double velocityXYProcessNoiseCov;
         double velocityZProcessNoiseCov;
         double measurementXYNoiseCov;
         double measurementZNoiseCov;
-
-        Params(double positionXYProcessNoiseCov = 1e-5,
-            double positionZProcessNoiseCov = 1e-8,
-            double velocityXYProcessNoiseCov = 1e-5,
-            double velocityZProcessNoiseCov = 1e-8,
-            double measurementXYNoiseCov = 1,
-            double measurementZNoiseCov = 1);
+        bool useTimeout;
+        double notUpdatedTimeoutInMsec;
     };
 
-    MarkerTracker(const Params& p = Params());
-    ~MarkerTracker();
-
-    void setParams(const Params& p);
+    KalmanTracker3D(const Params& p = Params());
+    ~KalmanTracker3D();
 
     void update(const QVector3D& position, const QVector3D& rotation);
-    void updateNotFound();
     void predict(double elapsedMsec);
 
     bool hasPosition() const;
@@ -58,6 +57,7 @@ public:
     static const Params& staticMarkerParams();
 
 private:
+    struct MarkerTrackerData;
     QScopedPointer<MarkerTrackerData> _d;
 };
 

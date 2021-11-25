@@ -38,7 +38,7 @@ Button {
         rightPadding: 10
         topPadding: 5
         bottomPadding: 5
-        y: control.down ? 7 : 5
+        transform: Translate { y: control.down ? 2 : 0 }
     }
 
     background: Rectangle {

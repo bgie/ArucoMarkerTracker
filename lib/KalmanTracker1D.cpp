@@ -14,24 +14,25 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#include "SimpleTracker.h"
-#include <QDebug>
+#include "KalmanTracker1D.h"
 #include <opencv2/video/tracking.hpp>
 
-const int NOTFOUND_COUNTDOWN_START = 90;
+namespace {
 const int stateSize = 2;
 const int measSize = 1;
 const int contrSize = 0;
+}
 
-SimpleTracker::Params::Params()
-    : positionProcessNoiseCov(1)
-    , velocityProcessNoiseCov(1)
-    , measurementNoiseCov(1)
+KalmanTracker1D::Params::Params(double positionProcessNoiseCov, double velocityProcessNoiseCov, double measurementNoiseCov, double notUpdatedTimeoutInMsec)
+    : positionProcessNoiseCov(positionProcessNoiseCov)
+    , velocityProcessNoiseCov(velocityProcessNoiseCov)
+    , measurementNoiseCov(measurementNoiseCov)
+    , notUpdatedTimeoutInMsec(notUpdatedTimeoutInMsec)
 {
 }
 
-struct SimpleTrackerData {
-    SimpleTrackerData(const SimpleTracker::Params& p)
+struct KalmanTracker1D::SimpleTrackerData {
+    SimpleTrackerData(const KalmanTracker1D::Params& p)
         : p(p)
         , kf(stateSize, measSize, contrSize, CV_64F)
         , state(stateSize, 1, CV_64F)
@@ -43,97 +44,83 @@ struct SimpleTrackerData {
         // p 1 dT
         // v 0 1
         // Note: set dT at each processing step!
-        cv::setIdentity(kf.transitionMatrix);
+        //
+        // Is already set to identity matrix in kf.init
 
         // Measure Matrix H
-        kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, CV_64F);
         kf.measurementMatrix.at<double>(0) = 1.0;
 
         // Process Noise Covariance Matrix Q
         // 1 0
         // 0 1
-        cv::setIdentity(kf.processNoiseCov);
         kf.processNoiseCov.at<double>(0) = p.positionProcessNoiseCov;
         kf.processNoiseCov.at<double>(3) = p.velocityProcessNoiseCov;
 
         // Measures Noise Covariance Matrix R
         cv::setIdentity(kf.measurementNoiseCov, cv::Scalar::all(p.measurementNoiseCov));
-
-        cv::setIdentity(kf.errorCovPost);
     }
 
     void update(const double position)
     {
         meas.at<double>(0) = position;
 
-        if (notFoundCountDown == 0) {
+        if (notFoundCountDown <= 0) {
             state.at<double>(0) = meas.at<double>(0);
             state.at<double>(1) = 0;
-
             kf.statePost = state;
-            notFoundCountDown = NOTFOUND_COUNTDOWN_START;
+            setIdentity(kf.errorCovPost);
         } else {
             state = kf.correct(meas);
         }
-    }
-
-    void updateNotFound()
-    {
-        if (notFoundCountDown > 0) {
-            notFoundCountDown--;
-        }
+        notFoundCountDown = p.notUpdatedTimeoutInMsec;
     }
 
     void predict(double elapsedMsec)
     {
+        notFoundCountDown -= elapsedMsec;
         if (notFoundCountDown > 0) {
             kf.transitionMatrix.at<double>(1) = elapsedMsec;
             state = kf.predict();
         }
     }
 
-    SimpleTracker::Params p;
+    KalmanTracker1D::Params p;
     cv::KalmanFilter kf;
     cv::Mat state; // [x,v_x]
     cv::Mat meas; // [x]
-    int notFoundCountDown;
+    double notFoundCountDown;
 };
 
-SimpleTracker::SimpleTracker(const Params& p)
+KalmanTracker1D::KalmanTracker1D(const Params& p)
     : _d(new SimpleTrackerData(p))
 {
 }
 
-SimpleTracker::~SimpleTracker()
+KalmanTracker1D::~KalmanTracker1D()
 {
 }
 
-void SimpleTracker::update(double position)
+void KalmanTracker1D::update(double position)
 {
     _d->update(position);
 }
 
-void SimpleTracker::updateNotFound()
-{
-    _d->updateNotFound();
-}
-
-void SimpleTracker::predict(double elapsedMsec)
+void KalmanTracker1D::predict(double elapsedMsec)
 {
     _d->predict(elapsedMsec);
 }
 
-bool SimpleTracker::hasPosition() const
+bool KalmanTracker1D::hasPosition() const
 {
     return _d->notFoundCountDown > 0;
 }
 
-double SimpleTracker::position() const
+double KalmanTracker1D::position() const
 {
     return _d->state.at<double>(0);
 }
 
-double SimpleTracker::velocity() const
+double KalmanTracker1D::velocity() const
 {
     return _d->state.at<double>(1);
 }

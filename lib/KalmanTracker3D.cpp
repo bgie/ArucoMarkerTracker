@@ -14,40 +14,42 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#include "MarkerTracker.h"
-#include <QDebug>
+#include "KalmanTracker3D.h"
 #include <opencv2/video/tracking.hpp>
 
-const int NOTFOUND_COUNTDOWN_START = 300;
 const int stateSize = 6;
 const int measSize = 3;
 const int contrSize = 0;
 
-MarkerTracker::Params::Params(double positionXYProcessNoiseCov, double positionZProcessNoiseCov, double velocityXYProcessNoiseCov, double velocityZProcessNoiseCov, double measurementXYNoiseCov, double measurementZNoiseCov)
+KalmanTracker3D::Params::Params(double positionXYProcessNoiseCov,
+    double positionZProcessNoiseCov,
+    double velocityXYProcessNoiseCov,
+    double velocityZProcessNoiseCov,
+    double measurementXYNoiseCov,
+    double measurementZNoiseCov,
+    bool useTimeout,
+    double notUpdatedTimeoutInMsec)
     : positionXYProcessNoiseCov(positionXYProcessNoiseCov)
     , positionZProcessNoiseCov(positionZProcessNoiseCov)
     , velocityXYProcessNoiseCov(velocityXYProcessNoiseCov)
     , velocityZProcessNoiseCov(velocityZProcessNoiseCov)
     , measurementXYNoiseCov(measurementXYNoiseCov)
     , measurementZNoiseCov(measurementZNoiseCov)
+    , useTimeout(useTimeout)
+    , notUpdatedTimeoutInMsec(notUpdatedTimeoutInMsec)
 {
+    if (!useTimeout) {
+        notUpdatedTimeoutInMsec = 1.0;
+    }
 }
 
-struct MarkerTrackerData {
-    MarkerTrackerData(const MarkerTracker::Params& p)
+struct KalmanTracker3D::MarkerTrackerData {
+    MarkerTrackerData(const KalmanTracker3D::Params& p)
         : p(p)
         , kf(stateSize, measSize, contrSize, CV_64F)
         , state(stateSize, 1, CV_64F)
         , meas(measSize, 1, CV_64F)
         , notFoundCountDown(0)
-    {
-        setParams(p);
-
-        // Posteriori Error Covariance Matrix
-        cv::setIdentity(kf.errorCovPost);
-    }
-
-    void setParams(const MarkerTracker::Params& p)
     {
         // Transition State Matrix A
         // Note: set dT at each processing step!
@@ -57,13 +59,13 @@ struct MarkerTrackerData {
         // [ 0 0 0 1 0  0 ]
         // [ 0 0 0 0 1  0 ]
         // [ 0 0 0 0 0  1 ]
-        cv::setIdentity(kf.transitionMatrix);
+        //
+        // is set to identity by kf.init
 
         // Measure Matrix H
         // [ 1 0 0 0 0 0 ]
         // [ 0 1 0 0 0 0 ]
         // [ 0 0 1 0 0 0 ]
-        kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, CV_64F);
         kf.measurementMatrix.at<double>(0) = 1.0;
         kf.measurementMatrix.at<double>(7) = 1.0;
         kf.measurementMatrix.at<double>(14) = 1.0;
@@ -76,14 +78,12 @@ struct MarkerTrackerData {
         // v_x [ *   0   0   Ev_x  0     0    ]
         // v_y [ 0   *   0   0     Ev_y  0    ]
         // v_z [ 0   0   *   0     0     Ev_z ]
-        cv::setIdentity(kf.processNoiseCov);
         kf.processNoiseCov.at<double>(0) = kf.processNoiseCov.at<double>(7) = p.positionXYProcessNoiseCov;
         kf.processNoiseCov.at<double>(14) = p.positionZProcessNoiseCov;
         kf.processNoiseCov.at<double>(21) = kf.processNoiseCov.at<double>(28) = p.velocityXYProcessNoiseCov;
         kf.processNoiseCov.at<double>(35) = p.velocityZProcessNoiseCov;
 
         // Measures Noise Covariance Matrix R
-        cv::setIdentity(kf.measurementNoiseCov, cv::Scalar::all(p.measurementXYNoiseCov));
         kf.measurementNoiseCov.at<double>(0) = kf.measurementNoiseCov.at<double>(4) = p.measurementXYNoiseCov;
         kf.measurementNoiseCov.at<double>(8) = p.measurementZNoiseCov;
     }
@@ -94,101 +94,94 @@ struct MarkerTrackerData {
         meas.at<double>(1) = position.y();
         meas.at<double>(2) = position.z();
 
-        if (notFoundCountDown == 0) {
+        if (notFoundCountDown <= 0) {
             state.at<double>(0) = meas.at<double>(0);
             state.at<double>(1) = meas.at<double>(1);
             state.at<double>(2) = meas.at<double>(2);
-            state.at<double>(3) = 0;
-            state.at<double>(4) = 0;
-            state.at<double>(5) = 0;
+            state.at<double>(3) = state.at<double>(4) = state.at<double>(5) = 0;
 
             kf.statePost = state;
-            notFoundCountDown = NOTFOUND_COUNTDOWN_START;
+            setIdentity(kf.errorCovPost);
         } else {
             state = kf.correct(meas);
         }
-    }
-
-    void updateNotFound()
-    {
-        if (notFoundCountDown > 0) {
-            notFoundCountDown--;
-        }
+        notFoundCountDown = p.notUpdatedTimeoutInMsec;
     }
 
     void predict(double elapsedMsec)
     {
+        if (p.useTimeout) {
+            notFoundCountDown -= elapsedMsec;
+        }
         if (notFoundCountDown > 0) {
             kf.transitionMatrix.at<double>(3) = elapsedMsec;
             kf.transitionMatrix.at<double>(10) = elapsedMsec;
             kf.transitionMatrix.at<double>(17) = elapsedMsec;
-
             state = kf.predict();
         }
     }
 
-    MarkerTracker::Params p;
+    KalmanTracker3D::Params p;
     cv::KalmanFilter kf;
     cv::Mat state; // [x,y,z,v_x,v_y,v_z]
     cv::Mat meas; // [x,y,z]
-    int notFoundCountDown;
+    double notFoundCountDown;
     QVector3D rotation;
 };
 
-MarkerTracker::MarkerTracker(const Params& p)
+KalmanTracker3D::KalmanTracker3D(const Params& p)
     : _d(new MarkerTrackerData(p))
 {
 }
 
-MarkerTracker::~MarkerTracker()
+KalmanTracker3D::~KalmanTracker3D()
 {
 }
 
-void MarkerTracker::setParams(const MarkerTracker::Params& p)
+void KalmanTracker3D::update(const QVector3D& position, const QVector3D& rotation)
 {
-    _d->setParams(p);
-}
+    //    cv::Vec3d rvec(rotation.x(), rotation.y(), rotation.z());
+    //    cv::Mat_<double> rmatrix(3, 3, CV_64FC1);
+    //    cv::Rodrigues(rvec, rmatrix);
+    //    cv::Mat_<double> axis = rmatrix * cv::Vec3d(100, 0, 0);
 
-void MarkerTracker::update(const QVector3D& position, const QVector3D& rotation)
-{
+    //    qDebug() << axis.size[0] << axis.size[1];
+
+    //    QVector3D test = position + QVector3D(axis[0][0], axis[1][0], axis[2][0]);
+    //    _d->update(test);
+
     _d->update(position);
     _d->rotation = rotation;
 }
 
-void MarkerTracker::updateNotFound()
-{
-    _d->updateNotFound();
-}
-
-void MarkerTracker::predict(double elapsedMsec)
+void KalmanTracker3D::predict(double elapsedMsec)
 {
     _d->predict(elapsedMsec);
 }
 
-bool MarkerTracker::hasPosition() const
+bool KalmanTracker3D::hasPosition() const
 {
     return _d->notFoundCountDown > 0;
 }
 
-QVector3D MarkerTracker::position() const
+QVector3D KalmanTracker3D::position() const
 {
     return QVector3D(_d->state.at<double>(0), _d->state.at<double>(1), _d->state.at<double>(2));
 }
 
-QVector3D MarkerTracker::rotation() const
+QVector3D KalmanTracker3D::rotation() const
 {
     return _d->rotation;
 }
 
-const MarkerTracker::Params& MarkerTracker::movingTanksParams()
+const KalmanTracker3D::Params& KalmanTracker3D::movingTanksParams()
 {
-    static const Params result(10, 30, 10, 30, 3, 3);
-    //    static const Params result(1e-5, 1e-8, 1e-5, 1e-8, 1, 1);
+    static const Params result(10, 30, 10, 30, 3, 3, true, 3000);
     return result;
 }
 
-const MarkerTracker::Params& MarkerTracker::staticMarkerParams()
+const KalmanTracker3D::Params& KalmanTracker3D::staticMarkerParams()
 {
-    static const Params result(1e-7, 1e-10, 1e-7, 1e-10, 1, 1);
+    static const Params result(1e-7, 1e-10, 1e-7, 1e-10, 1, 1, true, 8000);
     return result;
 }

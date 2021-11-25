@@ -26,12 +26,12 @@ int main(int argc, char* argv[])
     Video video;
     video.load(QStringLiteral(":/"), QStringLiteral("Tanks2Video.json"));
 
-    MarkerTracker::Params p;
-    trackAllMarkers(video.frames(), MSECS_PER_FRAME, p);
+    trackAllMarkers(video.frames(), MSECS_PER_FRAME, KalmanTracker3D::staticMarkerParams());
     writeAllMarkersToCsv(video.frames(), "markers.csv", true);
 
     double grid[] = { 1e-8, 1e0 };
 
+    KalmanTracker3D::Params p;
     for (double noiseM : grid) {
         for (double noisePP : grid) {
             for (double noisePV : grid) {

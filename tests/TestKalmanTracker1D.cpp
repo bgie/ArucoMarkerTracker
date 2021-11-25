@@ -14,13 +14,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#include "TestSimpleTracker.h"
+#include "TestKalmanTracker1D.h"
 #include "GeneticAlgorithm.h"
-#include "SimpleTracker.h"
+#include "KalmanTracker1D.h"
 #include "TestFactory.h"
 #include <math.h>
 
-REGISTER_TESTCLASS(TestSimpleTracker);
+REGISTER_TESTCLASS(TestKalmanTracker1D);
 
 class SimpleTrackerEvaluator : public IEvaluator {
 public:
@@ -54,11 +54,11 @@ public:
 
     float evaluateImpl(Genome genome, bool debugPrint) const
     {
-        SimpleTracker::Params p;
+        KalmanTracker1D::Params p;
         p.positionProcessNoiseCov = genome.at(0);
         p.velocityProcessNoiseCov = genome.at(1);
         p.measurementNoiseCov = genome.at(2);
-        SimpleTracker tracker(p);
+        KalmanTracker1D tracker(p);
 
         double totalError = 0.0;
 
@@ -112,7 +112,7 @@ private:
     QVector<double> _measuredPos;
 };
 
-void TestSimpleTracker::simple_tracker_must_track_stationary_object()
+void TestKalmanTracker1D::tracker_must_track_stationary_object()
 {
     const int genomeCount = 3;
     const float minGeneInit = 1e-7f;
@@ -128,7 +128,7 @@ void TestSimpleTracker::simple_tracker_must_track_stationary_object()
     GenomeLab lab(genomeCount, minGeneInit, maxGeneInit, minGeneValue, maxGeneValue, mutationMulProbability, mutationMulStdDev, mutationAddProbability, mutationAddStdDev, crossOverMinAmount, crossOverMaxAmount);
     SimpleTrackerEvaluator evaluator;
 
-    const int populationSize = 1000;
+    const int populationSize = 50;
     const float elitePortion = 0.02f;
     float rankSelectionMultiplier = 100.0f;
     GeneticAlgorithm ga(lab, evaluator, populationSize, elitePortion, rankSelectionMultiplier);

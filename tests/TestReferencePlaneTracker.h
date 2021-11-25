@@ -14,25 +14,17 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-pragma Singleton
-import QtQuick 2.0
+#ifndef TESTREFERENCEPLANETRACKER_H
+#define TESTREFERENCEPLANETRACKER_H
 
-Item {
-    readonly property int windowMargins: 20
-    readonly property int smallMargin: 10
-    readonly property int mediumMargin: 20
-    readonly property int largeMargin: 30
-    readonly property int extraLargeMargin: 50
+#include <QObject>
 
-    readonly property int smallRadius: 3
-    readonly property int largeRadius: 8
+class TestReferencePlaneTracker : public QObject
+{
+     Q_OBJECT
+ private slots:
+     void xy_plane_must_preserve_xy();
+     void test_angled_plane();
+};
 
-    readonly property string fontSize: "14"
-
-    readonly property color black: "#000000"
-    readonly property color darkerGray: "#202020"
-    readonly property color darkGray: "#303030"
-    readonly property color mediumGray: "#808080"
-    readonly property color lightGray: "#D0D0D0"
-    readonly property color white: "#FFFFFF"
-}
+#endif // TESTREFERENCEPLANETRACKER_H

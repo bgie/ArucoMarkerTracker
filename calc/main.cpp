@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "GeneticAlgorithm.h"
-#include "MarkerTracker.h"
+#include "KalmanTracker3D.h"
 #include "Video.h"
 #include <QCoreApplication>
 #include <QSet>
@@ -133,7 +133,7 @@ public:
     {
         QHash<int, QVector<TrackingEntry>> result;
 
-        MarkerTracker::Params p;
+        KalmanTracker3D::Params p;
         p.positionXYProcessNoiseCov = genome.at(0);
         p.positionZProcessNoiseCov = genome.at(1);
         p.velocityXYProcessNoiseCov = genome.at(2);
@@ -142,9 +142,9 @@ public:
         p.measurementZNoiseCov = genome.at(5);
 
         // create a tracker and result vector for every id
-        QHash<int, MarkerTracker*> trackers;        
+        QHash<int, KalmanTracker3D*> trackers;        
         for (auto id : _allIds) {
-            trackers.insert(id, new MarkerTracker(p));
+            trackers.insert(id, new KalmanTracker3D(p));
             result.insert(id, QVector<TrackingEntry>());
         }
 
@@ -163,7 +163,7 @@ public:
                 entry.hasMarker = true;
                 entry.markerPosition = marker->position();
 
-                MarkerTracker* tracker = trackers.value(id);
+                KalmanTracker3D* tracker = trackers.value(id);
                 tracker->predict(FRAMERATE_MSEC);
                 entry.isPredicted = tracker->hasPosition();
                 entry.predictPosition = tracker->position();
@@ -176,9 +176,8 @@ public:
 
             // predict markers that are not found
             for (int id : _allIds - ids) {
-                MarkerTracker* tracker = trackers.value(id);
+                KalmanTracker3D* tracker = trackers.value(id);
                 tracker->predict(FRAMERATE_MSEC);
-                tracker->updateNotFound();
 
                 TrackingEntry entry;
                 entry.hasMarker = false;

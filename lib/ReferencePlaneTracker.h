@@ -14,16 +14,31 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef TESTSIMPLETRACKER_H
-#define TESTSIMPLETRACKER_H
+#ifndef REFERENCEPLANETRACKER_H
+#define REFERENCEPLANETRACKER_H
 
-#include <QObject>
+#include <QList>
+#include <QScopedPointer>
+#include <QSet>
 
-class TestSimpleTracker : public QObject
+class Marker;
+
+class ReferencePlaneTracker
 {
-    Q_OBJECT
-private slots:
-    void simple_tracker_must_track_stationary_object();
+public:
+    ReferencePlaneTracker(QSet<int> referenceMarkerIds);
+    ~ReferencePlaneTracker();
+
+    bool hasPlane() const;
+    void trackMarkers(double elapsedMsecs, QList<Marker*> markers);
+
+    QVector3D centerPoint() const;
+    QList<QVector3D> cornerPoints() const;
+    QVector3D projectPoint(const QPointF& input) const;
+
+private:
+    struct Data;
+    QScopedPointer<Data> _d;
 };
 
-#endif // TESTSIMPLETRACKER_H
+#endif // REFERENCEPLANETRACKER_H

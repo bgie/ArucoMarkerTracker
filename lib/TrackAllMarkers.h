@@ -17,13 +17,13 @@
 #ifndef TRACKALLMARKERS_H
 #define TRACKALLMARKERS_H
 
-#include "MarkerTracker.h"
+#include "KalmanTracker3D.h"
 #include <QList>
 
 class Frame;
 
 QList<int> getAllMarkerIds(QList<Frame*> frames, bool includeFiltered = true);
-void trackAllMarkers(QList<Frame*> frames, double msecsPerFrame, const MarkerTracker::Params& p);
+void trackAllMarkers(QList<Frame*> frames, double msecsPerFrame, const KalmanTracker3D::Params& p);
 void writeAllMarkersToCsv(QList<Frame*> frames, QString writeCsvFilename, bool details = false);
 
 #endif // TRACKALLMARKERS_H

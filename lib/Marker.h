@@ -28,13 +28,14 @@ class Marker : public QObject
     Q_PROPERTY(QVector3D position READ position CONSTANT)
 
 public:
-    explicit Marker(int id, const QVector3D& position, const QVector3D& rotation, QObject* parent = nullptr);
+    explicit Marker(int id, const QVector3D& position, const QVector3D& rotation, QPointF screenPos = QPointF(), QObject* parent = nullptr);
     explicit Marker(QJsonObject object, QObject* parent = nullptr);
     virtual ~Marker() override;
 
     int id() const;
     const QVector3D& position() const;
     const QVector3D& rotation() const;
+    const QPointF& screenPos() const;
 
     QJsonObject toJson() const;
 
@@ -42,6 +43,7 @@ private:
     int _id;
     QVector3D _position;
     QVector3D _rotation;
+    QPointF _screenPos;
 };
 
 #endif // MARKER_H
