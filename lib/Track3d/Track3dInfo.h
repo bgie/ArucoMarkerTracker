@@ -14,16 +14,31 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef TRACKALLMARKERS_H
-#define TRACKALLMARKERS_H
+#pragma once
+#include <QObject>
+#include <QString>
 
-#include "KalmanTracker3D.h"
-#include <QList>
+class Track3dInfo : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(QString id READ id CONSTANT)
+    Q_PROPERTY(QString x READ x NOTIFY changed)
+    Q_PROPERTY(QString y READ y NOTIFY changed)
+    Q_PROPERTY(QString z READ z NOTIFY changed)
 
-class Frame;
+public:
+    explicit Track3dInfo(int id, QObject* parent = nullptr);
 
-QList<int> getAllMarkerIds(QList<Frame*> frames, bool includeFiltered = true);
-void trackAllMarkers(QList<Frame*> frames, double msecsPerFrame, const KalmanTracker3D::Params& p);
-void writeAllMarkersToCsv(QList<Frame*> frames, QString writeCsvFilename, bool details = false);
+    QString id() const;
+    QString x() const;
+    QString y() const;
+    QString z() const;
 
-#endif // TRACKALLMARKERS_H
+    void setXYZ(float x, float y, float z);
+    void setNotDetected();
+
+signals:
+    void changed();
+
+private:
+    QString _id, _x, _y, _z;
+};

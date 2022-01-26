@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef VIDEOSOURCE_H
-#define VIDEOSOURCE_H
-
+#pragma once
 #include "Frame.h"
 #include <QObject>
 #include <functional>
@@ -43,5 +41,3 @@ private:
     bool _hasOwnership;
     std::function<void()> _exclusiveProviderEndedCallback;
 };
-
-#endif // VIDEOSOURCE_H

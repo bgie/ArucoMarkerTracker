@@ -14,36 +14,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef MARKERINFO_H
-#define MARKERINFO_H
-
+#pragma once
 #include <QObject>
-#include <QString>
 
-class MarkerInfo : public QObject
+class TestPlane3d : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString id READ id CONSTANT)
-    Q_PROPERTY(QString x READ x NOTIFY changed)
-    Q_PROPERTY(QString y READ y NOTIFY changed)
-    Q_PROPERTY(QString z READ z NOTIFY changed)
+private slots:
+    void constructor_should_initialize_properties();
 
-public:
-    explicit MarkerInfo(int id, QObject* parent = nullptr);
-
-    QString id() const;
-    QString x() const;
-    QString y() const;
-    QString z() const;
-
-    void setXYZ(float x, float y, float z);
-    void setNotDetected();
-
-signals:
-    void changed();
-
-private:
-    QString _id, _x, _y, _z;
+    void fit_plane_should_give_expected_results();
+    void fit_plane_should_give_expected_results_data();
 };
-
-#endif // MARKERINFO_H

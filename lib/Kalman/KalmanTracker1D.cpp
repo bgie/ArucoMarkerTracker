@@ -31,8 +31,8 @@ KalmanTracker1D::Params::Params(double positionProcessNoiseCov, double velocityP
 {
 }
 
-struct KalmanTracker1D::SimpleTrackerData {
-    SimpleTrackerData(const KalmanTracker1D::Params& p)
+struct KalmanTracker1D::Data {
+    Data(const KalmanTracker1D::Params& p)
         : p(p)
         , kf(stateSize, measSize, contrSize, CV_64F)
         , state(stateSize, 1, CV_64F)
@@ -92,7 +92,7 @@ struct KalmanTracker1D::SimpleTrackerData {
 };
 
 KalmanTracker1D::KalmanTracker1D(const Params& p)
-    : _d(new SimpleTrackerData(p))
+    : _d(new Data(p))
 {
 }
 

@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef VIEWERCONTROLLER_H
-#define VIEWERCONTROLLER_H
-
+#pragma once
 #include <QElapsedTimer>
 #include <QImage>
 #include <QObject>
@@ -62,5 +60,3 @@ private:
     QTimer* _refreshFpsTimer;
     VideoSource* _videoSource;
 };
-
-#endif // VIEWERCONTROLLER_H

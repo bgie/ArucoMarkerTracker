@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef RECORDCONTROLLER_H
-#define RECORDCONTROLLER_H
-
+#pragma once
 #include "ImageSaver.h"
 #include <QImage>
 #include <QObject>
@@ -66,5 +64,3 @@ private:
     ImageSaver _saver;
     VideoSource* _videoSource;
 };
-
-#endif // RECORDCONTROLLER_H

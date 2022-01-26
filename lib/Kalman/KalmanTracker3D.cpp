@@ -43,8 +43,8 @@ KalmanTracker3D::Params::Params(double positionXYProcessNoiseCov,
     }
 }
 
-struct KalmanTracker3D::MarkerTrackerData {
-    MarkerTrackerData(const KalmanTracker3D::Params& p)
+struct KalmanTracker3D::Data {
+    Data(const KalmanTracker3D::Params& p)
         : p(p)
         , kf(stateSize, measSize, contrSize, CV_64F)
         , state(stateSize, 1, CV_64F)
@@ -130,7 +130,7 @@ struct KalmanTracker3D::MarkerTrackerData {
 };
 
 KalmanTracker3D::KalmanTracker3D(const Params& p)
-    : _d(new MarkerTrackerData(p))
+    : _d(new Data(p))
 {
 }
 
@@ -138,20 +138,9 @@ KalmanTracker3D::~KalmanTracker3D()
 {
 }
 
-void KalmanTracker3D::update(const QVector3D& position, const QVector3D& rotation)
+void KalmanTracker3D::update(const QVector3D& position)
 {
-    //    cv::Vec3d rvec(rotation.x(), rotation.y(), rotation.z());
-    //    cv::Mat_<double> rmatrix(3, 3, CV_64FC1);
-    //    cv::Rodrigues(rvec, rmatrix);
-    //    cv::Mat_<double> axis = rmatrix * cv::Vec3d(100, 0, 0);
-
-    //    qDebug() << axis.size[0] << axis.size[1];
-
-    //    QVector3D test = position + QVector3D(axis[0][0], axis[1][0], axis[2][0]);
-    //    _d->update(test);
-
     _d->update(position);
-    _d->rotation = rotation;
 }
 
 void KalmanTracker3D::predict(double elapsedMsec)
@@ -167,11 +156,6 @@ bool KalmanTracker3D::hasPosition() const
 QVector3D KalmanTracker3D::position() const
 {
     return QVector3D(_d->state.at<double>(0), _d->state.at<double>(1), _d->state.at<double>(2));
-}
-
-QVector3D KalmanTracker3D::rotation() const
-{
-    return _d->rotation;
 }
 
 const KalmanTracker3D::Params& KalmanTracker3D::movingTanksParams()

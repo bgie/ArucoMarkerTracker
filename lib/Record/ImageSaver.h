@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef IMAGESAVER_H
-#define IMAGESAVER_H
-
+#pragma once
 #include <QImage>
 #include <QObject>
 
@@ -43,5 +41,3 @@ private:
     bool _enabled;
     int _fileCounter;
 };
-
-#endif // IMAGESAVER_H

@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef ARUCO_H
-#define ARUCO_H
-
+#pragma once
 #include <QImage>
 #include <QObject>
 #include <QScopedPointer>
@@ -48,5 +46,3 @@ private:
     struct Data;
     QScopedPointer<Data> _d;
 };
-
-#endif // ARUCO_H

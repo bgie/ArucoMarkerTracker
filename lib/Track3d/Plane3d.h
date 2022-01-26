@@ -14,44 +14,28 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#include "MarkerInfo.h"
+#pragma once
+#include <QList>
+#include <QVector3D>
 
-MarkerInfo::MarkerInfo(int id, QObject* parent)
-    : QObject(parent)
-    , _id(QString::number(id))
+// A 3d plane with equation ax + by + cz + d = 0
+class Plane3d
 {
-}
+public:
+    Plane3d(double a = 0.0, double b = 0.0, double c = 0.0, double d = 0.0);
 
-QString MarkerInfo::id() const
-{
-    return _id;
-}
+    static Plane3d fitToPoints(QList<QVector3D> points, bool* ok);
 
-QString MarkerInfo::x() const
-{
-    return _x;
-}
+    double a() const;
+    double b() const;
+    double c() const;
+    double d() const;
 
-QString MarkerInfo::y() const
-{
-    return _y;
-}
+    double xAngle() const;
+    double yAngle() const;
+    double zAngle() const;
 
-QString MarkerInfo::z() const
-{
-    return _z;
-}
-
-void MarkerInfo::setXYZ(float x, float y, float z)
-{
-    _x = QString::number(x, 'f', 1);
-    _y = QString::number(y, 'f', 1);
-    _z = QString::number(z, 'f', 1);
-    emit changed();
-}
-
-void MarkerInfo::setNotDetected()
-{
-    _x = _y = _z = QStringLiteral("-");
-    emit changed();
-}
+private:
+    double _a, _b, _c, _d;
+    double _l2abc;
+};

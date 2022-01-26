@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef MARKER_H
-#define MARKER_H
-
+#pragma once
 #include <QJsonObject>
 #include <QObject>
 #include <QVector3D>
@@ -45,5 +43,3 @@ private:
     QVector3D _rotation;
     QPointF _screenPos;
 };
-
-#endif // MARKER_H

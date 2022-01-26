@@ -16,10 +16,12 @@
 */
 #include "Track3dController.h"
 #include "Aruco/Aruco.h"
-#include "MarkerInfo.h"
+#include "Plane3d.h"
+#include "Track3dInfo.h"
 #include "Video/Frame.h"
 #include "Video/VideoSource.h"
 #include <QTimer>
+#include <math.h>
 
 Track3dController::Track3dController(QObject* parent)
     : QObject(parent)
@@ -136,6 +138,7 @@ void Track3dController::refreshImage()
 
 void Track3dController::refreshText()
 {
+    QList<QVector3D> points;
     QSet<int> foundIds;
     bool newIdAdded = false;
     for (size_t i = 0; i < _markers.ids.size(); ++i) {
@@ -144,14 +147,27 @@ void Track3dController::refreshText()
 
         if (!_markerInfos.contains(id)) {
             newIdAdded = true;
-            _markerInfos[id] = new MarkerInfo(id, this);
+            _markerInfos[id] = new Track3dInfo(id, this);
         }
         auto tvec = _markers.tvecs.at(i);
         _markerInfos[id]->setXYZ(tvec[0], tvec[1], tvec[2]);
+        points << QVector3D(tvec[0], tvec[1], tvec[2]);
     }
     auto missingIds = _markerInfos.keys().toSet() - foundIds;
     for (auto id : missingIds) {
         _markerInfos[id]->setNotDetected();
+    }
+
+    bool hasPlane = false;
+    auto plane = Plane3d::fitToPoints(points, &hasPlane);
+    if (hasPlane) {
+        setRefPlane(
+            QStringLiteral("xAngle=%1 yAngle=%2 zAngle=%3")
+                .arg(180 * plane.xAngle() / M_PI, 0, 'f', 2)
+                .arg(180 * plane.yAngle() / M_PI, 0, 'f', 2)
+                .arg(180 * plane.zAngle() / M_PI, 0, 'f', 2));
+    } else {
+        setRefPlane(QStringLiteral("-"));
     }
 
     if (newIdAdded) {
@@ -164,7 +180,7 @@ qreal Track3dController::fps() const
     return _fps;
 }
 
-QList<MarkerInfo*> Track3dController::markers() const
+QList<Track3dInfo*> Track3dController::markers() const
 {
     return _markerInfos.values();
 }
@@ -186,4 +202,18 @@ VideoSource* Track3dController::videoSource() const
 Aruco* Track3dController::aruco() const
 {
     return _aruco;
+}
+
+void Track3dController::setRefPlane(QString refPlane)
+{
+    if (_refPlane == refPlane)
+        return;
+
+    _refPlane = refPlane;
+    emit refPlaneChanged(_refPlane);
+}
+
+QString Track3dController::refPlane() const
+{
+    return _refPlane;
 }

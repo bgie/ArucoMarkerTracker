@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef MARKERTRACKER_H
-#define MARKERTRACKER_H
-
+#pragma once
 #include <QScopedPointer>
 #include <QVector3D>
 
@@ -46,19 +44,16 @@ public:
     KalmanTracker3D(const Params& p = Params());
     ~KalmanTracker3D();
 
-    void update(const QVector3D& position, const QVector3D& rotation);
+    void update(const QVector3D& position);
     void predict(double elapsedMsec);
 
     bool hasPosition() const;
     QVector3D position() const;
-    QVector3D rotation() const;
 
     static const Params& movingTanksParams();
     static const Params& staticMarkerParams();
 
 private:
-    struct MarkerTrackerData;
-    QScopedPointer<MarkerTrackerData> _d;
+    struct Data;
+    QScopedPointer<Data> _d;
 };
-
-#endif // MARKERTRACKER_H

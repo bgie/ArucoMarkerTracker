@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef CAMERACONTROLLER_H
-#define CAMERACONTROLLER_H
-
+#pragma once
 #include <QImage>
 #include <QObject>
 
@@ -96,5 +94,3 @@ private:
     bool _imageChanged;
     VideoSource* _videoSource;
 };
-
-#endif // CAMERACONTROLLER_H

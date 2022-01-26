@@ -25,14 +25,14 @@ HEADERS += \
     TestFactory.h \
     #TestGeneraticAlgorithm.h \
     #TestKalmanTracker1D.h \
-    TestReferencePlaneTracker.h \
+    TestPlane3d.h \
     TestSourceCode.h
 
 SOURCES += \
     TestFactory.cpp \
     #TestGeneraticAlgorithm.cpp \
     #TestKalmanTracker1D.cpp \
-    TestReferencePlaneTracker.cpp \
+    TestPlane3d.cpp \
     TestSourceCode.cpp \
     main.cpp
 

@@ -23,7 +23,7 @@
 
 class VideoSource;
 class Frame;
-class MarkerInfo;
+class Track3dInfo;
 
 class Track3dController : public QObject {
     Q_OBJECT
@@ -33,6 +33,7 @@ class Track3dController : public QObject {
     Q_PROPERTY(QImage image READ image NOTIFY imageChanged)
     Q_PROPERTY(qreal fps READ fps NOTIFY fpsChanged)
     Q_PROPERTY(QList<QObject*> markers READ markerQObjects NOTIFY markersChanged);
+    Q_PROPERTY(QString refPlane READ refPlane WRITE setRefPlane NOTIFY refPlaneChanged)
 
 public:
     explicit Track3dController(QObject* parent = nullptr);
@@ -40,8 +41,9 @@ public:
 
     QImage image();
     qreal fps() const;
-    QList<MarkerInfo*> markers() const;
+    QList<Track3dInfo*> markers() const;
     QList<QObject*> markerQObjects() const;
+    QString refPlane() const;
 
     VideoSource* videoSource() const;
     Aruco* aruco() const;
@@ -50,6 +52,8 @@ signals:
     void imageChanged();
     void fpsChanged(qreal fps);
     void markersChanged();
+    void refPlaneChanged(QString refPlane);
+
     void videoSourceChanged(VideoSource* videoSource);
     void arucoChanged(Aruco* aruco);
 
@@ -58,6 +62,7 @@ public slots:
     void setAruco(Aruco* aruco);
 
 private slots:
+    void setRefPlane(QString refPlane);
     void setFrame(Frame* f);
     void setFps(qreal fps);
     void updateFps();
@@ -78,5 +83,6 @@ private:
     bool _imageInvalidated;
     bool _textInvalidated;
     Aruco::Markers _markers;
-    QMap<int, MarkerInfo*> _markerInfos;
+    QMap<int, Track3dInfo*> _markerInfos;
+    QString _refPlane;
 };

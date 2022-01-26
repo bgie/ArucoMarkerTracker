@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef IMAGESREPLAYER_H
-#define IMAGESREPLAYER_H
-
+#pragma once
 #include <QElapsedTimer>
 #include <QObject>
 #include <QTimer>
@@ -48,5 +46,3 @@ private:
     int _sentFrames;
     int _lastFrameIndex;
 };
-
-#endif // IMAGESREPLAYER_H

@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef CAMERAREADER_H
-#define CAMERAREADER_H
-
+#pragma once
 #include <QImage>
 #include <QSize>
 #include <QThread>
@@ -54,5 +52,3 @@ private:
     volatile bool _stopReading;
     QVector<struct mmapBuffer> _buffers;
 };
-
-#endif // CAMERAREADER_H

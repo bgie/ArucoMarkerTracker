@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef FRAME_H
-#define FRAME_H
-
+#pragma once
 #include <QDir>
 #include <QFuture>
 #include <QImage>
@@ -72,5 +70,3 @@ private:
     QList<Marker*> _markers;
     QList<QObject*> _calculations;
 };
-
-#endif // FRAME_H

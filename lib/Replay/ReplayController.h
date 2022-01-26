@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef REPLAYCONTROLLER_H
-#define REPLAYCONTROLLER_H
-
+#pragma once
 #include "ReplayTimer.h"
 #include <QImage>
 #include <QObject>
@@ -81,5 +79,3 @@ private:
     QVector<int> _indicesToPrefetch;
     VideoSource* _videoSource;
 };
-
-#endif // REPLAYCONTROLLER_H

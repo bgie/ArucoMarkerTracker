@@ -14,28 +14,32 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef ARUCODETECTOR_H
-#define ARUCODETECTOR_H
-
-#include "Video/Frame.h"
-#include <QImage>
+#pragma once
 #include <QScopedPointer>
-#include <opencv2/core.hpp>
+#include <QVector3D>
 
-struct ArucoDetectorData;
-
-class ArucoDetector
-{
+class KalmanTracker1D {
 public:
-    ArucoDetector();
-    ~ArucoDetector();
+    struct Params {
+        Params(double positionProcessNoiseCov = 1, double velocityProcessNoiseCov = 1, double measurementNoiseCov = 1, double notUpdatedTimeoutInMsec = 3000);
 
-    void detectAruco(QImage& image, cv::Mat cameraMatrix, cv::Mat distCoeffs, bool kallmanFilter);
+        double positionProcessNoiseCov;
+        double velocityProcessNoiseCov;
+        double measurementNoiseCov;
+        double notUpdatedTimeoutInMsec;
+    };
 
-    void detectAllMarkers(QList<Frame*> frames, cv::Mat cameraMatrix, cv::Mat distCoeffs);
+    KalmanTracker1D(const Params& p = Params());
+    ~KalmanTracker1D();
+
+    void update(double position);
+    void predict(double elapsedMsec);
+
+    bool hasPosition() const;
+    double position() const;
+    double velocity() const;
 
 private:
-    QScopedPointer<ArucoDetectorData> _d;
+    struct Data;
+    QScopedPointer<Data> _d;
 };
-
-#endif // ARUCODETECTOR_H

@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef FRAMESCALIBRATIONMODEL_H
-#define FRAMESCALIBRATIONMODEL_H
-
+#pragma once
 #include <QAbstractListModel>
 
 class Video;
@@ -39,5 +37,3 @@ public:
 private:
     Video* _video;
 };
-
-#endif // FRAMESCALIBRATIONMODEL_H

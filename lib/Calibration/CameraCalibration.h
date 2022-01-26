@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef CAMERACALIBRATION_H
-#define CAMERACALIBRATION_H
-
+#pragma once
 #include "Video/Frame.h"
 #include <QImage>
 #include <QScopedPointer>
@@ -46,5 +44,3 @@ public:
 private:
     QScopedPointer<CameraCalibrationData> _d;
 };
-
-#endif // CAMERACALIBRATION_H

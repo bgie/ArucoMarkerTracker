@@ -38,7 +38,15 @@ Item {
         image: controller.image
 
         MyLabel {
-            anchors.right: parent.right
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.margins: Style.smallMargin
+
+            text: "Reference plane: " + controller.refPlane
+        }
+
+        MyLabel {
+            anchors.left: parent.left
             anchors.bottom: parent.bottom
             anchors.margins: Style.smallMargin
 

@@ -21,7 +21,7 @@
 #include "ImageItem.h"
 #include "Record/RecordController.h"
 #include "Replay/ReplayController.h"
-#include "Track3d/MarkerInfo.h"
+#include "Track3d/Track3dInfo.h"
 #include "Track3d/Track3dController.h"
 #include "Video/Frame.h"
 #include "Video/Marker.h"
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<ViewerController>("ArucoMarkerTracker", 1, 0, "ViewerController");
     qmlRegisterType<CalibrationController>("ArucoMarkerTracker", 1, 0, "CalibrationController");
     qmlRegisterType<Track3dController>("ArucoMarkerTracker", 1, 0, "Track3dController");
-    qmlRegisterUncreatableType<MarkerInfo>("ArucoMarkerTracker", 1, 0, "MarkerInfo", "Cannot create from qml");
+    qmlRegisterUncreatableType<Track3dInfo>("ArucoMarkerTracker", 1, 0, "MarkerInfo", "Cannot create from qml");
     qmlRegisterUncreatableType<FramesCalibrationModel>("ArucoMarkerTracker", 1, 0, "FramesCalibrationModel", "Cannot create from qml");
     qmlRegisterType<ImageItem>("ArucoMarkerTracker", 1, 0, "ImageItem");
 

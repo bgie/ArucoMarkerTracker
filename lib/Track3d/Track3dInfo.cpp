@@ -14,31 +14,44 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef REFERENCEPLANETRACKER_H
-#define REFERENCEPLANETRACKER_H
+#include "Track3dInfo.h"
 
-#include <QList>
-#include <QScopedPointer>
-#include <QSet>
-
-class Marker;
-
-class ReferencePlaneTracker
+Track3dInfo::Track3dInfo(int id, QObject* parent)
+    : QObject(parent)
+    , _id(QString::number(id))
 {
-public:
-    ReferencePlaneTracker(QSet<int> referenceMarkerIds);
-    ~ReferencePlaneTracker();
+}
 
-    bool hasPlane() const;
-    void trackMarkers(double elapsedMsecs, QList<Marker*> markers);
+QString Track3dInfo::id() const
+{
+    return _id;
+}
 
-    QVector3D centerPoint() const;
-    QList<QVector3D> cornerPoints() const;
-    QVector3D projectPoint(const QPointF& input) const;
+QString Track3dInfo::x() const
+{
+    return _x;
+}
 
-private:
-    struct Data;
-    QScopedPointer<Data> _d;
-};
+QString Track3dInfo::y() const
+{
+    return _y;
+}
 
-#endif // REFERENCEPLANETRACKER_H
+QString Track3dInfo::z() const
+{
+    return _z;
+}
+
+void Track3dInfo::setXYZ(float x, float y, float z)
+{
+    _x = QString::number(x, 'f', 1);
+    _y = QString::number(y, 'f', 1);
+    _z = QString::number(z, 'f', 1);
+    emit changed();
+}
+
+void Track3dInfo::setNotDetected()
+{
+    _x = _y = _z = QStringLiteral("-");
+    emit changed();
+}

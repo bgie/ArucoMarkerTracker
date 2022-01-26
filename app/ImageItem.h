@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef IMAGEITEM_H
-#define IMAGEITEM_H
-
+#pragma once
 #include <QImage>
 #include <QQuickItem>
 
@@ -43,5 +41,3 @@ private:
     QImage _image;
     bool _imageChanged;
 };
-
-#endif // IMAGEITEM_H

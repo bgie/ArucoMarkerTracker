@@ -14,9 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef CALIBRATIONCONTROLLER_H
-#define CALIBRATIONCONTROLLER_H
-
+#pragma once
 #include <QImage>
 #include <QObject>
 
@@ -85,5 +83,3 @@ private:
     QString _calibrationValues;
     Aruco* _aruco;
 };
-
-#endif // CALIBRATIONCONTROLLER_H
