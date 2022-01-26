@@ -18,7 +18,7 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
-import MyApp 1.0
+import ArucoMarkerTracker 1.0
 import './controls/'
 
 Window {
@@ -30,16 +30,36 @@ Window {
     title: qsTr("Aruco tracker")
     color: Style.black
 
-    MainController {
-        id: controller
-    }
-
     Rectangle {
         color: Style.darkGray
         anchors.left: buttons.right
         anchors.right: parent.right
         anchors.top : tabs.bottom
         anchors.bottom: parent.bottom
+
+        Component {
+            id: viewerPanel
+            ViewerPanel {}
+        }
+        Component {
+            id: calibrationPanel
+            CalibrationPanel {}
+        }
+        Component {
+            id: track3dPanel
+            Track3dPanel {}
+        }
+        Loader {
+            anchors.fill: parent
+            anchors.margins: Style.smallMargin
+            sourceComponent: viewerTabButton.selected
+                             ? viewerPanel
+                             : calibrationTabButton.selected
+                             ? calibrationPanel
+                             : track3dTabButton.selected
+                             ? track3dPanel
+                             : undefined
+        }
     }
 
     Item {
@@ -64,21 +84,11 @@ Window {
             selected: buttons.selected === this
             onClicked: { if (selected) buttons.selected = null; else buttons.selected = this }
         }
-
         CameraPanel {
             id: cameraPanel
-            controller: controller
             anchors.left: cameraToolButton.right
             anchors.top: cameraToolButton.top
             visible: cameraToolButton.selected
-        }
-        DelayedMouseLeaveArea {
-            anchors.left: cameraToolButton.left
-            anchors.top: cameraToolButton.top
-            anchors.right: cameraPanel.right
-            anchors.bottom: cameraPanel.bottom
-            visible: cameraToolButton.selected
-            onDelayedMouseLeftArea: { if (cameraToolButton.selected) buttons.selected = null }
         }
 
         MyToolButton {
@@ -93,22 +103,32 @@ Window {
 
             selected: buttons.selected === this
             onClicked: { if (selected) buttons.selected = null; else buttons.selected = this }
-
         }
         RecordPanel {
             id: recordPanel
-            controller: controller
             anchors.left: recordToolButton.right
             anchors.top: recordToolButton.top
             visible: recordToolButton.selected
         }
-        DelayedMouseLeaveArea {
-            anchors.left: recordToolButton.left
-            anchors.top: recordToolButton.top
-            anchors.right: recordPanel.right
-            anchors.bottom: recordPanel.bottom
-            visible: recordToolButton.selected
-            onDelayedMouseLeftArea: { if (recordToolButton.selected) buttons.selected = null }
+
+        MyToolButton {
+            id: replayToolButton
+            anchors.top: recordToolButton.bottom
+            anchors.left: parent.left
+
+            sourceLight: "img/playWhite.png"
+            sourceDark: "img/playBlack.png"
+            backgroundColor: window.color
+            radius: 0
+
+            selected: buttons.selected === this
+            onClicked: { if (selected) buttons.selected = null; else buttons.selected = this }
+        }
+        ReplayPanel {
+            id: replayPanel
+            anchors.left: replayToolButton.right
+            anchors.top: replayToolButton.top
+            visible: replayToolButton.selected
         }
     }
 
@@ -123,42 +143,35 @@ Window {
         Row {
             anchors.fill: parent
             MyTabButton {
-                id: calibrationTabButton
-                text: "Calibration"
+                id: viewerTabButton
+                text: "Viewer"
                 tabIndex: 0
                 selected: tabs.selected === tabIndex
                 onClicked: tabs.selected = tabIndex
             }
             MyTabButton {
-                text: "Reference plane"
+                id: calibrationTabButton
+                text: "Calibration"
                 tabIndex: 1
                 selected: tabs.selected === tabIndex
                 onClicked: tabs.selected = tabIndex
             }
             MyTabButton {
-                text: "2D tracking"
+                id: track3dTabButton
+                text: "3D tracking"
                 tabIndex: 2
+                selected: tabs.selected === tabIndex
+                onClicked: tabs.selected = tabIndex
+            }
+            MyTabButton {
+                text: "2D tracking"
+                tabIndex: 3
                 selected: tabs.selected === tabIndex
                 onClicked: tabs.selected = tabIndex
             }
         }
     }
 
-
-//    Rectangle {
-//        id: centerImage
-//        anchors.left: leftPanel.right
-//        anchors.top: topPanel.bottom
-//        anchors.bottom: parent.bottom
-//        anchors.right: rightPanel.left
-//        color: Style.black
-
-//        ImageItem {
-//            anchors.fill: parent
-//            anchors.margins: 2
-//            image: controller.image
-//        }
-//    }
 
 //    Column {
 //        id: topPanel
@@ -597,14 +610,6 @@ Window {
 //        onClicked: expanded = !expanded
 //    }
 
-//    MyLabel {
-//        anchors.right: centerImage.right
-//        anchors.bottom: centerImage.bottom
-//        anchors.margins: Style.smallMargin
-
-//        text: controller.fps.toFixed(2) + " fps"
-//        visible: controller.isCameraStreaming || controller.isReplayStreaming
-//    }
 
     MyButton {
         visible: visibility == Window.FullScreen

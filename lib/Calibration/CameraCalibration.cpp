@@ -160,10 +160,10 @@ double CameraCalibration::calibrateUsingVideo(QList<Frame*> frames)
             perViewErrors,
             0);
 
-        Q_ASSERT(perViewErrors.size() == result.indices.size());
-        for (size_t i = 0; i < result.indices.size(); ++i) {
-            frames.at(result.indices.at(i))->setChessBoardReprojectionError(QString::number(perViewErrors.at(i)));
-        }
+        //        Q_ASSERT(perViewErrors.size() == result.indices.size());
+        //        for (size_t i = 0; i < result.indices.size(); ++i) {
+        //            frames.at(result.indices.at(i))->setChessBoardReprojectionError(QString::number(perViewErrors.at(i)));
+        //        }
 
         cv::initUndistortRectifyMap(
             _d->cameraMatrix,
@@ -223,4 +223,16 @@ cv::Mat CameraCalibration::cameraMatrix() const
 cv::Mat CameraCalibration::distCoeffs() const
 {
     return _d->distCoeffs;
+}
+
+QString CameraCalibration::calibrationValues() const
+{
+    if (_d->cameraMatrix.empty() || _d->distCoeffs.empty())
+        return QString();
+
+    return QStringLiteral("Camera Matrix %1x%2, Distance Coeffients %3x%4")
+        .arg(_d->cameraMatrix.size[0])
+        .arg(_d->cameraMatrix.size[1])
+        .arg(_d->distCoeffs.size[0])
+        .arg(_d->distCoeffs.size[1]);
 }

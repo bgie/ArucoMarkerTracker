@@ -17,55 +17,60 @@
 #ifndef FRAME_H
 #define FRAME_H
 
-#include "Marker.h"
 #include <QDir>
 #include <QFuture>
 #include <QImage>
-#include <QJsonObject>
 #include <QObject>
+
+class Marker;
 
 class Frame : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString fileName READ fileName CONSTANT)
-    Q_PROPERTY(QString chessBoardReprojectionError READ chessBoardReprojectionError WRITE setChessBoardReprojectionError NOTIFY chessBoardReprojectionErrorChanged)
-    Q_PROPERTY(QList<QObject*> markers READ markersQObjects NOTIFY markersChanged)
+    Q_PROPERTY(QImage image READ image CONSTANT)
 
 public:
     explicit Frame(QDir path, QString fileName, QObject* parent = nullptr);
-    explicit Frame(QDir path, QJsonObject object, QObject* parent = nullptr);
+    explicit Frame(QImage image, QObject* parent = nullptr);
     virtual ~Frame() override;
 
     QString fileName() const;
     QImage image();
 
-    QString chessBoardReprojectionError() const;
-
-    QList<QObject*> markersQObjects() const;
     QList<Marker*> markers() const;
-    QList<Marker*> filteredMarkers() const;
 
-    QJsonObject toJson() const;
+    QList<QObject*> calculations() const;
+    void addCalculation(QObject* o);
+
+    template <class T>
+    QList<T*> calculationsOfType() const
+    {
+        QList<T*> result;
+        foreach (QObject* o, _calculations) {
+            T* t = qobject_cast<T*>(o);
+            if (t)
+                result << t;
+        }
+        return result;
+    }
 
 public slots:
-    void setChessBoardReprojectionError(QString chessBoardReprojectionError);
     void setMarkers(QList<Marker*> list);
-    void setFilteredMarkers(QList<Marker*> list);
+    void loadImageFromDisk();
 
 signals:
-    void chessBoardReprojectionErrorChanged(QString chessBoardReprojectionError);
     void markersChanged();
-
-private:
-    void loadImage();
+    void calculationsChanged();
 
 private:
     const QDir _path;
     const QString _fileName;
-    QFuture<QImage> _image;
-    QString _chessBoardReprojectionError;
+    QImage _image;
+    bool _needsLoadFromDisk;
+    QFuture<QImage> _imageFuture;
     QList<Marker*> _markers;
-    QList<Marker*> _filteredMarkers;
+    QList<QObject*> _calculations;
 };
 
 #endif // FRAME_H

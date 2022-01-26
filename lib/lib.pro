@@ -21,35 +21,54 @@ QT += quick widgets concurrent
 include(../link_opencv.pri)
 
 HEADERS += \
+    Aruco/Aruco.h \
     ArucoDetector.h \
-    Camera.h \
-    CameraCalibration.h \
-    CameraReader.h \
-    Frame.h \
-    ImageSaver.h \
+    Calibration/CalibrationController.h \
+    Calibration/FramesCalibrationModel.h \
+    Camera/Camera.h \
+    Camera/CameraController.h \
+    Calibration/CameraCalibration.h \
+    Camera/CameraReader.h \
+    Track3d/MarkerInfo.h \
+    Track3d/Track3dController.h \
+    Video/Frame.h \
+    Record/ImageSaver.h \
     KalmanTracker1D.h \
     KalmanTracker3D.h \
-    MainController.h \
-    Marker.h \
+    Video/Marker.h \
     ReferencePlaneTracker.h \
-    ReplayTimer.h \
+    Replay/ReplayController.h \
+    Replay/ReplayTimer.h \
+    Record/RecordController.h \
     TrackAllMarkers.h \
-    Video.h \
-    GeneticAlgorithm.h
+    Video/Video.h \
+    GeneticAlgorithm.h \
+    Video/VideoSource.h \
+    Viewer/ViewerController.h
 
 SOURCES += \
+    Aruco/Aruco.cpp \
     ArucoDetector.cpp \
-    Camera.cpp \
-    CameraCalibration.cpp \
-    CameraReader.cpp \
-    Frame.cpp \
-    ImageSaver.cpp \
+    Calibration/CalibrationController.cpp \
+    Calibration/FramesCalibrationModel.cpp \
+    Camera/Camera.cpp \
+    Camera/CameraController.cpp \
+    Calibration/CameraCalibration.cpp \
+    Camera/CameraReader.cpp \
+    Track3d/MarkerInfo.cpp \
+    Track3d/Track3dController.cpp \
+    Video/Frame.cpp \
+    Record/ImageSaver.cpp \
     KalmanTracker1D.cpp \
     KalmanTracker3D.cpp \
-    MainController.cpp \
-    Marker.cpp \
+    Video/Marker.cpp \
     ReferencePlaneTracker.cpp \
-    ReplayTimer.cpp \
+    Replay/ReplayController.cpp \
+    Replay/ReplayTimer.cpp \
+    Record/RecordController.cpp \
     TrackAllMarkers.cpp \
-    Video.cpp \
-    GeneticAlgorithm.cpp
+    Video/Video.cpp \
+    GeneticAlgorithm.cpp \
+    Video/VideoSource.cpp \
+    Viewer/ViewerController.cpp
+

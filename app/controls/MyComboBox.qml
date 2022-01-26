@@ -16,7 +16,7 @@
 */
 import QtQuick 2.12
 import QtQuick.Controls 2.12
-import MyApp 1.0
+import ArucoMarkerTracker 1.0
 
 ComboBox {
     id: control

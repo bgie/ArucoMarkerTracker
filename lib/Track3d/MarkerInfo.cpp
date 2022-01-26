@@ -14,15 +14,44 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-import ArucoMarkerTracker 1.0
+#include "MarkerInfo.h"
 
-CheckBox {
-    id: control
-    contentItem: MyLabel {
-        text: control.text
-        leftPadding: control.indicator.width + control.spacing
-        verticalAlignment: Qt.AlignVCenter
-    }
+MarkerInfo::MarkerInfo(int id, QObject* parent)
+    : QObject(parent)
+    , _id(QString::number(id))
+{
+}
+
+QString MarkerInfo::id() const
+{
+    return _id;
+}
+
+QString MarkerInfo::x() const
+{
+    return _x;
+}
+
+QString MarkerInfo::y() const
+{
+    return _y;
+}
+
+QString MarkerInfo::z() const
+{
+    return _z;
+}
+
+void MarkerInfo::setXYZ(float x, float y, float z)
+{
+    _x = QString::number(x, 'f', 1);
+    _y = QString::number(y, 'f', 1);
+    _z = QString::number(z, 'f', 1);
+    emit changed();
+}
+
+void MarkerInfo::setNotDetected()
+{
+    _x = _y = _z = QStringLiteral("-");
+    emit changed();
 }

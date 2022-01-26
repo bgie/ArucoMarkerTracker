@@ -16,5 +16,11 @@
         <file>controls/MyCheckBox.qml</file>
         <file>controls/MyTabButton.qml</file>
         <file>controls/MyToolButton.qml</file>
+        <file>ReplayPanel.qml</file>
+        <file>img/playWhite.png</file>
+        <file>img/playBlack.png</file>
+        <file>ViewerPanel.qml</file>
+        <file>CalibrationPanel.qml</file>
+        <file>Track3dPanel.qml</file>
     </qresource>
 </RCC>

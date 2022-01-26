@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "TrackAllMarkers.h"
-#include "Video.h"
+#include "Video/Video.h"
 #include <QCoreApplication>
 
 const double MSECS_PER_FRAME = 1000.0 / 30.0;

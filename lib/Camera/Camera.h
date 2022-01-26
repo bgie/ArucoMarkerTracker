@@ -14,28 +14,47 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef ARUCODETECTOR_H
-#define ARUCODETECTOR_H
+#ifndef CAMERA_H
+#define CAMERA_H
 
-#include "Video/Frame.h"
 #include <QImage>
+#include <QObject>
 #include <QScopedPointer>
-#include <opencv2/core.hpp>
 
-struct ArucoDetectorData;
+struct CameraData;
 
-class ArucoDetector
-{
+class Camera : public QObject {
+    Q_OBJECT
+
 public:
-    ArucoDetector();
-    ~ArucoDetector();
+    explicit Camera(QString deviceName, QObject *parent = nullptr);
+    virtual ~Camera();
 
-    void detectAruco(QImage& image, cv::Mat cameraMatrix, cv::Mat distCoeffs, bool kallmanFilter);
+    QString deviceName() const;
+   
+    QStringList videoFormats() const;
+    void setVideoFormatIndex(int i);
 
-    void detectAllMarkers(QList<Frame*> frames, cv::Mat cameraMatrix, cv::Mat distCoeffs);
+    void setExposure(int val);
+    void setGain(int val);
+
+    bool canStream() const;
+
+    void startStream();
+    void stopStream();
+
+    static bool isValidDevice(QString deviceName);
+
+signals:
+    void frameRead(const QImage image);
 
 private:
-    QScopedPointer<ArucoDetectorData> _d;
+    void frameReceived(const QImage img);
+    void updateExposure();
+    void updateGain();
+
+private:
+    QScopedPointer<CameraData> _d;
 };
 
-#endif // ARUCODETECTOR_H
+#endif // CAMERA_H

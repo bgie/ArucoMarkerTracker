@@ -15,14 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "Video.h"
+#include "Frame.h"
 #include <QDir>
-#include <QFileInfo>
-#include <QJsonArray>
-#include <QJsonDocument>
 
 namespace {
 const QStringList filter = QStringList() << (QStringLiteral("????????.JPG"));
-const QString FRAMES(QStringLiteral("frames"));
 }
 
 Video::Video(QObject *parent) : QObject(parent)
@@ -36,6 +33,8 @@ Video::~Video()
 
 void Video::load(QString path)
 {
+    emit framesChanging();
+
     qDeleteAll(_frames);
     _frames.clear();
 
@@ -44,48 +43,6 @@ void Video::load(QString path)
         _frames.append(new Frame(dir, filename));
     }
     emit framesChanged();
-}
-
-void Video::load(QString path, QString filename)
-{
-    qDeleteAll(_frames);
-    _frames.clear();
-
-    QFile file(QDir(path).filePath(filename));
-    if (file.open(QIODevice::ReadOnly)) {
-        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-        QJsonObject obj = doc.object();
-        QJsonArray arr = obj[FRAMES].toArray();
-        for (auto it = arr.constBegin(); it != arr.constEnd(); ++it) {
-            _frames.append(new Frame(path, (*it).toObject()));
-        }
-    }
-    emit framesChanged();
-}
-
-bool Video::save(QString path, QString filename) const
-{
-    QJsonObject obj;
-    QJsonArray arr;
-    for (auto f : _frames) {
-        arr.append(f->toJson());
-    }
-    obj.insert(FRAMES, arr);
-    QFile file(QDir(path).absoluteFilePath(filename));
-    if (file.open(QIODevice::WriteOnly)) {
-        file.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
-        return true;
-    }
-    return false;
-}
-
-QList<QObject*> Video::framesQObjects() const
-{
-    QList<QObject*> results;
-    for (auto f : _frames) {
-        results.append(f);
-    }
-    return results;
 }
 
 QList<Frame*> Video::frames() const

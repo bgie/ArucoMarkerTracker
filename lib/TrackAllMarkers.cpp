@@ -15,8 +15,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "TrackAllMarkers.h"
-#include "Frame.h"
-#include "Marker.h"
+#include "Video/Frame.h"
+#include "Video/Marker.h"
 #include <algorithm>
 #include <math.h>
 
@@ -61,162 +61,162 @@ void trackAllMarkers(QList<Frame*> frames, double msecsPerFrame, const KalmanTra
             }
         }
 
-        frame->setFilteredMarkers(filteredMarkers);
+        // frame->setFilteredMarkers(filteredMarkers);
     }
 }
 
 void writeAllMarkersToCsv(QList<Frame*> frames, QString writeCsvFilename, bool details)
 {
-    QFile file(writeCsvFilename);
-    if (file.open(QIODevice::WriteOnly)) {
-        QTextStream stream(&file);
+    //    QFile file(writeCsvFilename);
+    //    if (file.open(QIODevice::WriteOnly)) {
+    //        QTextStream stream(&file);
 
-        QList<int> allIds = getAllMarkerIds(frames, false);
+    //        QList<int> allIds = getAllMarkerIds(frames, false);
 
-        for (int id : allIds) {
-            stream << "id," << id << "\n";
-            stream << "frame,x_measured,x_filtered,dist,y_measured,y_filtered,dist,z_measured,z_filtered,dist,x_rotation,y_rotation,z_rotation\n";
+    //        for (int id : allIds) {
+    //            stream << "id," << id << "\n";
+    //            stream << "frame,x_measured,x_filtered,dist,y_measured,y_filtered,dist,z_measured,z_filtered,dist,x_rotation,y_rotation,z_rotation\n";
 
-            QVector3D measuredSum, filteredSum;
-            QVector<QVector3D> allMeasured, allFiltered;
+    //            QVector3D measuredSum, filteredSum;
+    //            QVector<QVector3D> allMeasured, allFiltered;
 
-            for (int frameIndex = 0; frameIndex < frames.size(); ++frameIndex) {
-                Frame* frame = frames.at(frameIndex);
-                QVector3D measured, filtered, rotation;
-                auto markerIt = std::find_if(
-                    frame->markers().constBegin(), frame->markers().constEnd(),
-                    [id](Marker* m) { return m->id() == id; });
-                bool hasMeasurement = markerIt != frame->markers().constEnd();
-                if (hasMeasurement) {
-                    measured = (*markerIt)->position();
-                    rotation = (*markerIt)->rotation();
-                    measuredSum += measured;
-                    allMeasured << measured;
-                }
-                markerIt = std::find_if(
-                    frame->filteredMarkers().constBegin(), frame->filteredMarkers().constEnd(),
-                    [id](Marker* m) { return m->id() == id; });
-                bool hasFiltered = markerIt != frame->filteredMarkers().constEnd();
-                if (hasFiltered) {
-                    filtered = (*markerIt)->position();
-                    filteredSum += filtered;
-                    allFiltered << filtered;
-                }
+    //            for (int frameIndex = 0; frameIndex < frames.size(); ++frameIndex) {
+    //                Frame* frame = frames.at(frameIndex);
+    //                QVector3D measured, filtered, rotation;
+    //                auto markerIt = std::find_if(
+    //                    frame->markers().constBegin(), frame->markers().constEnd(),
+    //                    [id](Marker* m) { return m->id() == id; });
+    //                bool hasMeasurement = markerIt != frame->markers().constEnd();
+    //                if (hasMeasurement) {
+    //                    measured = (*markerIt)->position();
+    //                    rotation = (*markerIt)->rotation();
+    //                    measuredSum += measured;
+    //                    allMeasured << measured;
+    //                }
+    //                markerIt = std::find_if(
+    //                    frame->filteredMarkers().constBegin(), frame->filteredMarkers().constEnd(),
+    //                    [id](Marker* m) { return m->id() == id; });
+    //                bool hasFiltered = markerIt != frame->filteredMarkers().constEnd();
+    //                if (hasFiltered) {
+    //                    filtered = (*markerIt)->position();
+    //                    filteredSum += filtered;
+    //                    allFiltered << filtered;
+    //                }
 
-                if (details) {
-                    stream << frameIndex;
-                    stream << ",";
-                    if (hasMeasurement) {
-                        stream << measured.x();
-                    }
-                    stream << ",";
-                    if (hasFiltered) {
-                        stream << filtered.x();
-                    }
-                    stream << ",";
-                    if (hasMeasurement && hasFiltered) {
-                        stream << filtered.x() - measured.x();
-                    }
-                    stream << ",";
-                    if (hasMeasurement) {
-                        stream << measured.y();
-                    }
-                    stream << ",";
-                    if (hasFiltered) {
-                        stream << filtered.y();
-                    }
-                    stream << ",";
-                    if (hasMeasurement && hasFiltered) {
-                        stream << filtered.y() - measured.y();
-                    }
-                    stream << ",";
-                    if (hasMeasurement) {
-                        stream << measured.z();
-                    }
-                    stream << ",";
-                    if (hasFiltered) {
-                        stream << filtered.z();
-                    }
-                    stream << ",";
-                    if (hasMeasurement && hasFiltered) {
-                        stream << filtered.z() - measured.z();
-                    }
-                    stream << ",";
-                    if (hasMeasurement) {
-                        stream << rotation.x();
-                    }
-                    stream << ",";
-                    if (hasMeasurement) {
-                        stream << rotation.y();
-                    }
-                    stream << ",";
-                    if (hasMeasurement) {
-                        stream << rotation.z();
-                    }
-                    stream << "\n";
-                }
-            }
+    //                if (details) {
+    //                    stream << frameIndex;
+    //                    stream << ",";
+    //                    if (hasMeasurement) {
+    //                        stream << measured.x();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasFiltered) {
+    //                        stream << filtered.x();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasMeasurement && hasFiltered) {
+    //                        stream << filtered.x() - measured.x();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasMeasurement) {
+    //                        stream << measured.y();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasFiltered) {
+    //                        stream << filtered.y();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasMeasurement && hasFiltered) {
+    //                        stream << filtered.y() - measured.y();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasMeasurement) {
+    //                        stream << measured.z();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasFiltered) {
+    //                        stream << filtered.z();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasMeasurement && hasFiltered) {
+    //                        stream << filtered.z() - measured.z();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasMeasurement) {
+    //                        stream << rotation.x();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasMeasurement) {
+    //                        stream << rotation.y();
+    //                    }
+    //                    stream << ",";
+    //                    if (hasMeasurement) {
+    //                        stream << rotation.z();
+    //                    }
+    //                    stream << "\n";
+    //                }
+    //            }
 
-            QVector3D measuredAvg, filteredAvg, measuredStdev, filteredStdev;
-            bool hasMeasurement = allMeasured.size();
-            if (hasMeasurement) {
-                measuredAvg = measuredSum / allMeasured.size();
-                measuredStdev = std::accumulate(allMeasured.constBegin(), allMeasured.constEnd(), QVector3D(), [measuredAvg](QVector3D acc, QVector3D val) -> QVector3D {
-                    QVector3D delta = measuredAvg - val;
-                    return acc + (delta * delta);
-                }) / allMeasured.size();
-            }
-            bool hasFiltered = allFiltered.size();
-            if (hasFiltered) {
-                filteredAvg = filteredSum / allFiltered.size();
-                filteredStdev = std::accumulate(allMeasured.constBegin(), allMeasured.constEnd(), QVector3D(), [filteredAvg](QVector3D acc, QVector3D val) -> QVector3D {
-                    QVector3D delta = filteredAvg - val;
-                    return acc + (delta * delta);
-                }) / allFiltered.size();
-            }
+    //            QVector3D measuredAvg, filteredAvg, measuredStdev, filteredStdev;
+    //            bool hasMeasurement = allMeasured.size();
+    //            if (hasMeasurement) {
+    //                measuredAvg = measuredSum / allMeasured.size();
+    //                measuredStdev = std::accumulate(allMeasured.constBegin(), allMeasured.constEnd(), QVector3D(), [measuredAvg](QVector3D acc, QVector3D val) -> QVector3D {
+    //                    QVector3D delta = measuredAvg - val;
+    //                    return acc + (delta * delta);
+    //                }) / allMeasured.size();
+    //            }
+    //            bool hasFiltered = allFiltered.size();
+    //            if (hasFiltered) {
+    //                filteredAvg = filteredSum / allFiltered.size();
+    //                filteredStdev = std::accumulate(allMeasured.constBegin(), allMeasured.constEnd(), QVector3D(), [filteredAvg](QVector3D acc, QVector3D val) -> QVector3D {
+    //                    QVector3D delta = filteredAvg - val;
+    //                    return acc + (delta * delta);
+    //                }) / allFiltered.size();
+    //            }
 
-            stream << "STDEV,";
-            if (hasMeasurement) {
-                stream << sqrt(measuredStdev.x());
-            }
-            stream << ",";
-            if (hasFiltered) {
-                stream << sqrt(filteredStdev.x());
-            }
-            stream << ",,";
-            if (hasMeasurement) {
-                stream << sqrt(measuredStdev.y());
-            }
-            stream << ",";
-            if (hasFiltered) {
-                stream << sqrt(filteredStdev.y());
-            }
-            stream << ",,";
-            if (hasMeasurement) {
-                stream << sqrt(measuredStdev.z());
-            }
-            stream << ",";
-            if (hasFiltered) {
-                stream << sqrt(filteredStdev.z());
-            }
-            stream << ",\n\n";
-        }
-    }
+    //            stream << "STDEV,";
+    //            if (hasMeasurement) {
+    //                stream << sqrt(measuredStdev.x());
+    //            }
+    //            stream << ",";
+    //            if (hasFiltered) {
+    //                stream << sqrt(filteredStdev.x());
+    //            }
+    //            stream << ",,";
+    //            if (hasMeasurement) {
+    //                stream << sqrt(measuredStdev.y());
+    //            }
+    //            stream << ",";
+    //            if (hasFiltered) {
+    //                stream << sqrt(filteredStdev.y());
+    //            }
+    //            stream << ",,";
+    //            if (hasMeasurement) {
+    //                stream << sqrt(measuredStdev.z());
+    //            }
+    //            stream << ",";
+    //            if (hasFiltered) {
+    //                stream << sqrt(filteredStdev.z());
+    //            }
+    //            stream << ",\n\n";
+    //        }
+    //    }
 }
 
 QList<int> getAllMarkerIds(QList<Frame*> frames, bool includeFiltered)
 {
     QSet<int> result;
-    for (Frame* frame : frames) {
-        for (Marker* marker : frame->markers()) {
-            result.insert(marker->id());
-        }
-        if (includeFiltered) {
-            for (Marker* marker : frame->filteredMarkers()) {
-                result.insert(marker->id());
-            }
-        }
-    }
+    //    for (Frame* frame : frames) {
+    //        for (Marker* marker : frame->markers()) {
+    //            result.insert(marker->id());
+    //        }
+    //        if (includeFiltered) {
+    //            for (Marker* marker : frame->filteredMarkers()) {
+    //                result.insert(marker->id());
+    //            }
+    //        }
+    //    }
     QList<int> list = result.toList();
     std::sort(list.begin(), list.end());
     return list;

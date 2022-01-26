@@ -17,7 +17,7 @@
 #include "ArucoDetector.h"
 #include "KalmanTracker3D.h"
 #include "ReferencePlaneTracker.h"
-#include <Marker.h>
+#include "Video/Marker.h"
 #include <QHash>
 #include <QString>
 #include <QVector3D>
@@ -82,13 +82,7 @@ ArucoDetector::ArucoDetector()
 {
     _d->dictionary = getPredefinedDictionary(DICT_4X4_50);
     _d->parameters = DetectorParameters::create();
-    _d->parameters->cornerRefinementMethod = CORNER_REFINE_SUBPIX;
-
-    //    cv::Mat markerImage;
-    //    for (int i = 0; i < 50; ++i) {
-    //        drawMarker(_d->dictionary, i, 200, markerImage, 1);
-    //        imwrite(QString("marker%1.png").arg(i).toLatin1().constData(), markerImage);
-    //    }
+    _d->parameters->cornerRefinementMethod = CORNER_REFINE_NONE; // CORNER_REFINE_SUBPIX;
 }
 
 ArucoDetector::~ArucoDetector()

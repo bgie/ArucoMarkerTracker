@@ -15,9 +15,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "TestReferencePlaneTracker.h"
-#include "Marker.h"
 #include "ReferencePlaneTracker.h"
 #include "TestFactory.h"
+#include "Video/Marker.h"
 #include <math.h>
 
 REGISTER_TESTCLASS(TestReferencePlaneTracker);

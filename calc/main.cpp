@@ -16,7 +16,7 @@
 */
 #include "GeneticAlgorithm.h"
 #include "KalmanTracker3D.h"
-#include "Video.h"
+#include "Video/Video.h"
 #include <QCoreApplication>
 #include <QSet>
 #include <printf.h>

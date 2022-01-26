@@ -16,7 +16,7 @@
 */
 #include "ReferencePlaneTracker.h"
 #include "KalmanTracker3D.h"
-#include "Marker.h"
+#include "Video/Marker.h"
 #include <QDebug>
 #include <opencv2/core.hpp>
 

@@ -18,11 +18,14 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
-import MyApp 1.0
+import ArucoMarkerTracker 1.0
 import './controls/'
 
 Rectangle {
-    property MainController controller
+    CameraController {
+        id: controller
+        videoSource: globalVideoSource
+    }
 
     height: cameraSettingsGrid.implicitHeight + 2 * Style.mediumMargin
     width: cameraSettingsGrid.implicitWidth + 2 * Style.largeMargin
@@ -38,9 +41,11 @@ Rectangle {
         rowSpacing: Style.smallMargin
 
         MyLabel {
+            id: cameraLabel
             text: "Camera"
             verticalAlignment: Qt.AlignVCenter
             height: parent.height
+            Layout.fillWidth: true
         }
 
         MyTextEdit {
@@ -68,8 +73,8 @@ Rectangle {
         MyTextEdit {
             Layout.leftMargin: Style.mediumMargin
             Layout.preferredWidth: 60
-//                    text: controller.exposure
-//                    onTextChanged: controller.exposure = parseInt(text)
+            text: controller.gain
+            onTextChanged: controller.gain = parseInt(text)
         }
         MyLabel {
             text: "Exposure"

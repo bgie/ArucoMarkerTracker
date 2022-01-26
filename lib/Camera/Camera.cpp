@@ -28,13 +28,14 @@
 #include <unistd.h>
 
 const int EXPOSURE_CTRLID = 10094850;
+const int GAIN_CTRLID = 9963795;
 
 QMap<uint32_t, int32_t> defaultCameraSettings = {
     { 9963776, 128 }, //  Brightness
     { 9963777, 128 }, //  Contrast
     { 9963778, 128 }, //  Saturation
     { 9963788, 1 }, //  White Balance Temperature, Auto
-    { 9963795, 255 }, //  Gain
+    // { 9963795, 255 }, //  Gain
     { 9963800, 1 }, //  Power Line Frequency
     //{ 9963802, 3500 }, //  White Balance Temperature
     { 9963803, 128 }, //  Sharpness
@@ -63,6 +64,7 @@ public:
         , fd(0)
         , videoFormatIndex(-1)
         , exposure(100)
+        , gain(255)
     {
     }
 
@@ -71,6 +73,7 @@ public:
     QList<VideoFormat> videoFormats;
     int videoFormatIndex;
     int exposure;
+    int gain;
     QScopedPointer<CameraReader> reader;
 };
 
@@ -159,6 +162,15 @@ void Camera::setExposure(int val)
     }
 }
 
+void Camera::setGain(int val)
+{
+    _d->gain = val;
+
+    if (_d->reader) {
+        updateGain();
+    }
+}
+
 bool Camera::canStream() const
 {
     return _d->videoFormatIndex >= 0 && _d->videoFormatIndex < _d->videoFormats.count();
@@ -219,6 +231,7 @@ void Camera::startStream()
         }
 
         updateExposure();
+        updateGain();
 
         _d->reader.reset(new CameraReader(_d->fd, format.size));
         connect(_d->reader.data(), &CameraReader::frameRead, this, &Camera::frameReceived, Qt::QueuedConnection);
@@ -250,5 +263,16 @@ void Camera::updateExposure()
     ctrl.value = _d->exposure;
     if (-1 == xioctl(_d->fd, VIDIOC_S_CTRL, &ctrl)) {
         qCritical() << "Cannot set exposure value";
+    }
+}
+
+void Camera::updateGain()
+{
+    struct v4l2_control ctrl;
+    memset(&ctrl, 0, sizeof(ctrl));
+    ctrl.id = GAIN_CTRLID;
+    ctrl.value = _d->gain;
+    if (-1 == xioctl(_d->fd, VIDIOC_S_CTRL, &ctrl)) {
+        qCritical() << "Cannot set gain value";
     }
 }

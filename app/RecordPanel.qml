@@ -18,11 +18,14 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
-import MyApp 1.0
+import ArucoMarkerTracker 1.0
 import './controls/'
 
 Rectangle {
-    property MainController controller
+    RecordController {
+        id: controller
+        videoSource: globalVideoSource
+    }
 
     height: recordSettingGrid.implicitHeight + 2 * Style.mediumMargin
     width: recordSettingGrid.implicitWidth + 2 * Style.largeMargin

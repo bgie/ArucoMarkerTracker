@@ -20,10 +20,10 @@ SUBDIRS = \
     app \
     lib \
     tests \
-    calc \
-    calc2
+#    calc \
+#    calc2
 
 app.depends = lib
 tests.depends = lib
-calc.depends = lib
-calc2.depends = lib
+#calc.depends = lib
+#calc2.depends = lib
