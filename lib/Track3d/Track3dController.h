@@ -83,6 +83,7 @@ private:
     bool _imageInvalidated;
     bool _textInvalidated;
     Aruco::Markers _markers;
+    std::vector<float> _angles;
     QMap<int, Track3dInfo*> _markerInfos;
     QString _refPlane;
 };

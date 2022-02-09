@@ -15,35 +15,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <QImage>
 #include <QObject>
-#include <QScopedPointer>
-#include <QString>
-#include <opencv2/core/mat.hpp>
-#include <vector>
 
-class Aruco : public QObject {
+class TestRotationCounter : public QObject {
     Q_OBJECT
-
-public:
-    struct Markers {
-        std::vector<std::vector<cv::Point2f>> corners;
-        std::vector<int> ids;
-        std::vector<cv::Vec3d> rvecs, tvecs;
-    };
-
-public:
-    explicit Aruco(QObject* parent = nullptr);
-    virtual ~Aruco();
-
-    void setCameraMatrix(cv::Mat cameraMatrix, cv::Mat distCoeffs);
-    Markers detectMarkers(QImage image) const;
-    std::vector<float> calc2dAngles(const Markers& markers) const;
-    void drawMarkers(QImage& image, const Markers& markers) const;
-
-    void generateMarkerImageFiles(QString path) const;
-
-private:
-    struct Data;
-    QScopedPointer<Data> _d;
+private slots:
+    void angleWithRotations_should_handle_wrapping_angle();
 };

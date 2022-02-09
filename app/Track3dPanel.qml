@@ -59,7 +59,7 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: 800
+        width: 560
         anchors.margins: Style.smallMargin
         spacing: Style.smallMargin
 
@@ -105,6 +105,12 @@ Item {
                         horizontalAlignment: Qt.AlignHCenter
                     }
                     MyLabel {
+                        id: headerAngle
+                        width: 60
+                        text: "angle"
+                        horizontalAlignment: Qt.AlignHCenter
+                    }
+                    MyLabel {
                         id: headerAlfa
                         width: 60
                         text: "alfa"
@@ -122,24 +128,6 @@ Item {
                         text: "gamma"
                         horizontalAlignment: Qt.AlignHCenter
                     }
-                    MyLabel {
-                        id: headerFX
-                        width: 60
-                        text: "fx"
-                        horizontalAlignment: Qt.AlignHCenter
-                    }
-                    MyLabel {
-                        id: headerFY
-                        width: 60
-                        text: "fy"
-                        horizontalAlignment: Qt.AlignHCenter
-                    }
-                    MyLabel {
-                        id: headerFZ
-                        width: 60
-                        text: "fz"
-                        horizontalAlignment: Qt.AlignHCenter
-                    }
                 }
             }
             ListView {
@@ -154,68 +142,84 @@ Item {
                 delegate: Rectangle {
                     property bool highlighted: index === controller.markerIndex
                     color: highlighted ? Style.lightGray : index % 2 ? Style.darkerGray : Style.darkGray
-                    height: delegateRow.implicitHeight + 2 * Style.smallMargin
+                    height: 2 * delegateRow.implicitHeight + 2 * Style.smallMargin
                     width: parent.width
-                    Row {
-                        id: delegateRow
+                    Column {
+                        id: delegateColumn
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: Style.smallMargin
-                        spacing: Style.smallMargin
-                        MyLabel {
-                            width: headerId.width
-                            text: modelData.id
-                            color: highlighted ? Style.black : Style.lightGray
+                        Row {
+                            id: delegateRow
+                            spacing: Style.smallMargin
+                            MyLabel {
+                                width: headerId.width
+                                text: modelData.id
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerX.width
+                                text: modelData.x
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerY.width
+                                text: modelData.y
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerZ.width
+                                text: modelData.z
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerAngle.width
+                                text: modelData.angle2d
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerAlfa.width
+                                text: modelData.alfa
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerBeta.width
+                                text: modelData.beta
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerGamma.width
+                                text: modelData.gamma
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
                         }
-                        MyLabel {
-                            width: headerX.width
-                            text: modelData.x
-                            color: highlighted ? Style.black : Style.lightGray
+                        Row {
+                            spacing: Style.smallMargin
+                            Item {
+                                width: headerId.width
+                                height: 1
+                            }
+                            MyLabel {
+                                width: headerX.width
+                                text: modelData.fx
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerY.width
+                                text: modelData.fy
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerZ.width
+                                text: modelData.fz
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
+                            MyLabel {
+                                width: headerAngle.width
+                                text: modelData.fangle2d
+                                color: highlighted ? Style.black : Style.lightGray
+                            }
                         }
-                        MyLabel {
-                            width: headerY.width
-                            text: modelData.y
-                            color: highlighted ? Style.black : Style.lightGray
-                        }
-                        MyLabel {
-                            width: headerZ.width
-                            text: modelData.z
-                            color: highlighted ? Style.black : Style.lightGray
-                        }
-                        MyLabel {
-                            width: headerAlfa.width
-                            text: modelData.alfa
-                            color: highlighted ? Style.black : Style.lightGray
-                        }
-                        MyLabel {
-                            width: headerBeta.width
-                            text: modelData.beta
-                            color: highlighted ? Style.black : Style.lightGray
-                        }
-                        MyLabel {
-                            width: headerGamma.width
-                            text: modelData.gamma
-                            color: highlighted ? Style.black : Style.lightGray
-                        }
-                        MyLabel {
-                            width: headerFX.width
-                            text: modelData.fx
-                            color: highlighted ? Style.black : Style.lightGray
-                        }
-                        MyLabel {
-                            width: headerFY.width
-                            text: modelData.fy
-                            color: highlighted ? Style.black : Style.lightGray
-                        }
-                        MyLabel {
-                            width: headerFZ.width
-                            text: modelData.fz
-                            color: highlighted ? Style.black : Style.lightGray
-                        }
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: controller.frameIndex = index
                     }
                 }
             }

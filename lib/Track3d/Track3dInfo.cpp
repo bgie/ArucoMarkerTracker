@@ -74,10 +74,23 @@ QString Track3dInfo::gamma() const
     return _gamma;
 }
 
-void Track3dInfo::setPositionRotation(float x, float y, float z, float alfa, float beta, float gamma)
+QString Track3dInfo::angle2d() const
+{
+    return _angle2d;
+}
+
+QString Track3dInfo::fangle2d() const
+{
+    return _fangle2;
+}
+
+void Track3dInfo::setPositionRotation(float x, float y, float z, float alfa, float beta, float gamma, float angle2d)
 {
     _posFilter.predict(1);
     _posFilter.update(QVector3D(x, y, z));
+    _rotationCounter.updateAngle(angle2d);
+    _angleFilter.predict(1);
+    _angleFilter.update(_rotationCounter.angleWithRotations());
 
     _x = QString::number(x, 'f', 1);
     _y = QString::number(y, 'f', 1);
@@ -85,6 +98,7 @@ void Track3dInfo::setPositionRotation(float x, float y, float z, float alfa, flo
     _alfa = QString::number(alfa * 180 / M_PI, 'f', 1);
     _beta = QString::number(beta * 180 / M_PI, 'f', 1);
     _gamma = QString::number(gamma * 180 / M_PI, 'f', 1);
+    _angle2d = QString::number(_rotationCounter.angleWithRotations() * 180 / M_PI, 'f', 1);
     updateStrings();
     emit changed();
 }
@@ -92,9 +106,10 @@ void Track3dInfo::setPositionRotation(float x, float y, float z, float alfa, flo
 void Track3dInfo::setNotDetected()
 {
     _posFilter.predict(1);
+    _angleFilter.predict(1);
 
     _x = _y = _z = QStringLiteral("-");
-    _alfa = _beta = _gamma = QStringLiteral("-");
+    _alfa = _beta = _gamma = _angle2d = QStringLiteral("-");
     updateStrings();
     emit changed();
 }
@@ -107,5 +122,11 @@ void Track3dInfo::updateStrings()
         _fz = QString::number(_posFilter.position().z(), 'f', 1);
     } else {
         _fx = _fy = _fz = QStringLiteral("-");
+    }
+
+    if (_angleFilter.hasPosition()) {
+        _fangle2 = QString::number(_angleFilter.position() * 180 / M_PI, 'f', 1);
+    } else {
+        _fangle2 = QStringLiteral("-");
     }
 }

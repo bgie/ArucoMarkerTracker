@@ -119,6 +119,7 @@ void Track3dController::refreshImage()
 
         if (_aruco) {
             _markers = _aruco->detectMarkers(_image);
+            _angles = _aruco->calc2dAngles(_markers);
             _aruco->drawMarkers(_image, _markers);
         }
         _framesCounter++;
@@ -151,7 +152,8 @@ void Track3dController::refreshText()
         }
         auto tvec = _markers.tvecs.at(i);
         auto rvec = _markers.rvecs.at(i);
-        _markerInfos[id]->setPositionRotation(tvec[0], tvec[1], tvec[2], rvec[0], rvec[1], rvec[2]);
+        float angle = _angles.at(i);
+        _markerInfos[id]->setPositionRotation(tvec[0], tvec[1], tvec[2], rvec[0], rvec[1], rvec[2], angle);
         points << QVector3D(tvec[0], tvec[1], tvec[2]);
     }
     auto missingIds = _markerInfos.keys().toSet() - foundIds;

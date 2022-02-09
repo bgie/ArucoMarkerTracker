@@ -26,6 +26,7 @@ HEADERS += \
     #TestGeneraticAlgorithm.h \
     #TestKalmanTracker1D.h \
     TestPlane3d.h \
+    TestRotationCounter.h \
     TestSourceCode.h
 
 SOURCES += \
@@ -33,6 +34,7 @@ SOURCES += \
     #TestGeneraticAlgorithm.cpp \
     #TestKalmanTracker1D.cpp \
     TestPlane3d.cpp \
+    TestRotationCounter.cpp \
     TestSourceCode.cpp \
     main.cpp
 

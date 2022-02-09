@@ -30,6 +30,7 @@ HEADERS += \
     Camera/CameraReader.h \
     Kalman/KalmanTracker1D.h \
     Kalman/KalmanTracker3D.h \
+    Kalman/RotationCounter.h \
     Track3d/Plane3d.h \
     Track3d/Track3dController.h \
     Track3d/Track3dInfo.h \
@@ -52,6 +53,7 @@ SOURCES += \
     Camera/CameraReader.cpp \
     Kalman/KalmanTracker1D.cpp \
     Kalman/KalmanTracker3D.cpp \
+    Kalman/RotationCounter.cpp \
     Track3d/Plane3d.cpp \
     Track3d/Track3dController.cpp \
     Track3d/Track3dInfo.cpp \
