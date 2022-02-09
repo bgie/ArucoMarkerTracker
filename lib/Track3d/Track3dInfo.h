@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
+#include "Kalman/KalmanTracker3D.h"
 #include <QObject>
 #include <QString>
 
@@ -24,6 +25,12 @@ class Track3dInfo : public QObject {
     Q_PROPERTY(QString x READ x NOTIFY changed)
     Q_PROPERTY(QString y READ y NOTIFY changed)
     Q_PROPERTY(QString z READ z NOTIFY changed)
+    Q_PROPERTY(QString fx READ fx NOTIFY changed)
+    Q_PROPERTY(QString fy READ fy NOTIFY changed)
+    Q_PROPERTY(QString fz READ fz NOTIFY changed)
+    Q_PROPERTY(QString alfa READ alfa NOTIFY changed)
+    Q_PROPERTY(QString beta READ beta NOTIFY changed)
+    Q_PROPERTY(QString gamma READ gamma NOTIFY changed)
 
 public:
     explicit Track3dInfo(int id, QObject* parent = nullptr);
@@ -32,13 +39,24 @@ public:
     QString x() const;
     QString y() const;
     QString z() const;
+    QString fx() const;
+    QString fy() const;
+    QString fz() const;
+    QString alfa() const;
+    QString beta() const;
+    QString gamma() const;
 
-    void setXYZ(float x, float y, float z);
+    void setPositionRotation(float x, float y, float z, float alfa, float beta, float gamma);
     void setNotDetected();
 
 signals:
     void changed();
 
 private:
-    QString _id, _x, _y, _z;
+    void updateStrings();
+
+private:
+    QString _id, _x, _y, _z, _fx, _fy, _fz;
+    QString _alfa, _beta, _gamma;
+    KalmanTracker3D _posFilter;
 };

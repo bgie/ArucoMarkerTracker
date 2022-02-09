@@ -35,7 +35,6 @@ HEADERS += \
     Track3d/Track3dInfo.h \
     Video/Frame.h \
     Record/ImageSaver.h \
-    Video/Marker.h \
     Replay/ReplayController.h \
     Replay/ReplayTimer.h \
     Record/RecordController.h \
@@ -58,7 +57,6 @@ SOURCES += \
     Track3d/Track3dInfo.cpp \
     Video/Frame.cpp \
     Record/ImageSaver.cpp \
-    Video/Marker.cpp \
     Replay/ReplayController.cpp \
     Replay/ReplayTimer.cpp \
     Record/RecordController.cpp \

@@ -24,7 +24,6 @@
 #include "Track3d/Track3dInfo.h"
 #include "Track3d/Track3dController.h"
 #include "Video/Frame.h"
-#include "Video/Marker.h"
 #include "Video/Video.h"
 #include "Video/VideoSource.h"
 #include "Viewer/ViewerController.h"

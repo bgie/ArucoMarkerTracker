@@ -15,7 +15,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "Frame.h"
-#include "Marker.h"
 #include <QtConcurrent/QtConcurrentRun>
 
 Frame::Frame(QDir path, QString fileName, QObject* parent)
@@ -35,8 +34,6 @@ Frame::Frame(QImage image, QObject* parent)
 
 Frame::~Frame()
 {
-    qDeleteAll(_markers);
-    qDeleteAll(_calculations);
 }
 
 QString Frame::fileName() const
@@ -51,31 +48,6 @@ QImage Frame::image()
         _image = _imageFuture.result();
     }
     return _image;
-}
-
-QList<Marker*> Frame::markers() const
-{
-    return _markers;
-}
-
-QList<QObject*> Frame::calculations() const
-{
-    return _calculations;
-}
-
-void Frame::addCalculation(QObject* o)
-{
-    _calculations.append(o);
-    emit calculationsChanged();
-}
-
-void Frame::setMarkers(QList<Marker*> list)
-{
-    if (_markers != list) {
-        qDeleteAll(_markers.toSet() - list.toSet());
-        _markers = list;
-        emit markersChanged();
-    }
 }
 
 void Frame::loadImageFromDisk()

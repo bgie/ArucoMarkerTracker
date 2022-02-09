@@ -20,8 +20,6 @@
 #include <QImage>
 #include <QObject>
 
-class Marker;
-
 class Frame : public QObject
 {
     Q_OBJECT
@@ -36,30 +34,8 @@ public:
     QString fileName() const;
     QImage image();
 
-    QList<Marker*> markers() const;
-
-    QList<QObject*> calculations() const;
-    void addCalculation(QObject* o);
-
-    template <class T>
-    QList<T*> calculationsOfType() const
-    {
-        QList<T*> result;
-        foreach (QObject* o, _calculations) {
-            T* t = qobject_cast<T*>(o);
-            if (t)
-                result << t;
-        }
-        return result;
-    }
-
 public slots:
-    void setMarkers(QList<Marker*> list);
     void loadImageFromDisk();
-
-signals:
-    void markersChanged();
-    void calculationsChanged();
 
 private:
     const QDir _path;
@@ -67,6 +43,4 @@ private:
     QImage _image;
     bool _needsLoadFromDisk;
     QFuture<QImage> _imageFuture;
-    QList<Marker*> _markers;
-    QList<QObject*> _calculations;
 };

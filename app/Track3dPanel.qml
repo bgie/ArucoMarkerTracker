@@ -59,7 +59,7 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: 320
+        width: 800
         anchors.margins: Style.smallMargin
         spacing: Style.smallMargin
 
@@ -82,7 +82,7 @@ Item {
                     spacing: Style.smallMargin
                     MyLabel {
                         id: headerId
-                        width: 60
+                        width: 40
                         text: "Id"
                         horizontalAlignment: Qt.AlignHCenter
                     }
@@ -102,6 +102,42 @@ Item {
                         id: headerZ
                         width: 60
                         text: "z"
+                        horizontalAlignment: Qt.AlignHCenter
+                    }
+                    MyLabel {
+                        id: headerAlfa
+                        width: 60
+                        text: "alfa"
+                        horizontalAlignment: Qt.AlignHCenter
+                    }
+                    MyLabel {
+                        id: headerBeta
+                        width: 60
+                        text: "beta"
+                        horizontalAlignment: Qt.AlignHCenter
+                    }
+                    MyLabel {
+                        id: headerGamma
+                        width: 60
+                        text: "gamma"
+                        horizontalAlignment: Qt.AlignHCenter
+                    }
+                    MyLabel {
+                        id: headerFX
+                        width: 60
+                        text: "fx"
+                        horizontalAlignment: Qt.AlignHCenter
+                    }
+                    MyLabel {
+                        id: headerFY
+                        width: 60
+                        text: "fy"
+                        horizontalAlignment: Qt.AlignHCenter
+                    }
+                    MyLabel {
+                        id: headerFZ
+                        width: 60
+                        text: "fz"
                         horizontalAlignment: Qt.AlignHCenter
                     }
                 }
@@ -144,6 +180,36 @@ Item {
                         MyLabel {
                             width: headerZ.width
                             text: modelData.z
+                            color: highlighted ? Style.black : Style.lightGray
+                        }
+                        MyLabel {
+                            width: headerAlfa.width
+                            text: modelData.alfa
+                            color: highlighted ? Style.black : Style.lightGray
+                        }
+                        MyLabel {
+                            width: headerBeta.width
+                            text: modelData.beta
+                            color: highlighted ? Style.black : Style.lightGray
+                        }
+                        MyLabel {
+                            width: headerGamma.width
+                            text: modelData.gamma
+                            color: highlighted ? Style.black : Style.lightGray
+                        }
+                        MyLabel {
+                            width: headerFX.width
+                            text: modelData.fx
+                            color: highlighted ? Style.black : Style.lightGray
+                        }
+                        MyLabel {
+                            width: headerFY.width
+                            text: modelData.fy
+                            color: highlighted ? Style.black : Style.lightGray
+                        }
+                        MyLabel {
+                            width: headerFZ.width
+                            text: modelData.fz
                             color: highlighted ? Style.black : Style.lightGray
                         }
                     }

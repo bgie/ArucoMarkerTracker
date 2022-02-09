@@ -150,7 +150,8 @@ void Track3dController::refreshText()
             _markerInfos[id] = new Track3dInfo(id, this);
         }
         auto tvec = _markers.tvecs.at(i);
-        _markerInfos[id]->setXYZ(tvec[0], tvec[1], tvec[2]);
+        auto rvec = _markers.rvecs.at(i);
+        _markerInfos[id]->setPositionRotation(tvec[0], tvec[1], tvec[2], rvec[0], rvec[1], rvec[2]);
         points << QVector3D(tvec[0], tvec[1], tvec[2]);
     }
     auto missingIds = _markerInfos.keys().toSet() - foundIds;
