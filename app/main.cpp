@@ -26,7 +26,6 @@
 #include "Track3d/Track3dInfo.h"
 #include "Video/Frame.h"
 #include "Video/Video.h"
-#include "Video/VideoSource.h"
 #include "Viewer/ViewerController.h"
 #include <QElapsedTimer>
 #include <QGuiApplication>
@@ -43,10 +42,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(QStringLiteral("Aruco tracker"));
     QCoreApplication::setOrganizationName(QStringLiteral("Maken!"));
     QGuiApplication app(argc, argv);
-    QQmlApplicationEngine engine;
 
     qmlRegisterSingletonType(QUrl("qrc:/Style.qml"), "ArucoMarkerTracker", 1, 0, "Style");
-    qmlRegisterType<VideoSource>("ArucoMarkerTracker", 1, 0, "VideoSource");
     qmlRegisterType<Aruco>("ArucoMarkerTracker", 1, 0, "Aruco");
     qmlRegisterUncreatableType<ObjectTracker>("ArucoMarkerTracker", 1, 0, "ObjectTracker", "Cannot create from qml");
     qmlRegisterType<CameraController>("ArucoMarkerTracker", 1, 0, "CameraController");
@@ -59,15 +56,24 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<FramesCalibrationModel>("ArucoMarkerTracker", 1, 0, "FramesCalibrationModel", "Cannot create from qml");
     qmlRegisterType<ImageItem>("ArucoMarkerTracker", 1, 0, "ImageItem");
 
-    Aruco* aruco = new Aruco(&app);
+    Aruco aruco;
     QThread* trackingThread = new QThread(&app);
-    ObjectTracker tracker(aruco);
+    ObjectTracker tracker(&aruco);
     tracker.moveToThread(trackingThread);
     trackingThread->start(QThread::TimeCriticalPriority);
+    CameraController cameraController;
+    QObject::connect(&cameraController, &CameraController::imageChanged, &tracker, &ObjectTracker::processFrame, Qt::QueuedConnection);
+    RecordController recordController;
+    QObject::connect(&cameraController, &CameraController::imageChanged, &recordController, &RecordController::setImage, Qt::QueuedConnection);
+    ReplayController replayController;
+    QObject::connect(&replayController, &ReplayController::imageChanged, &tracker, &ObjectTracker::processFrame, Qt::QueuedConnection);
 
-    engine.rootContext()->setContextProperty("globalAruco", aruco);
+    QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("globalAruco", &aruco);
     engine.rootContext()->setContextProperty("globalObjectTracker", &tracker);
-    engine.rootContext()->setContextProperty("globalVideoSource", new VideoSource(&app));
+    engine.rootContext()->setContextProperty("globalCameraController", &cameraController);
+    engine.rootContext()->setContextProperty("globalRecordController", &recordController);
+    engine.rootContext()->setContextProperty("globalReplayController", &replayController);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty()) {

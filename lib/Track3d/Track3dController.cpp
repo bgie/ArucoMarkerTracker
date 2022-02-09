@@ -92,9 +92,9 @@ void Track3dController::refreshImage()
         _annotatedImage = newImage;
 
         if (_aruco) {
-            _markers = _objectTracker->markers();
+            auto markers = _objectTracker->markers();
             lock.unlock();
-            _aruco->drawMarkers(_annotatedImage, _markers);
+            _aruco->drawMarkers(_annotatedImage, markers);
         } else {
             lock.unlock();
         }

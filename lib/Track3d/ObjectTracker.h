@@ -16,7 +16,6 @@
 */
 #pragma once
 #include "Aruco/Aruco.h"
-#include <QElapsedTimer>
 #include <QMap>
 #include <QMutex>
 #include <QObject>
@@ -31,7 +30,7 @@ public:
     explicit ObjectTracker(Aruco* aruco, QObject* parent = nullptr);
     virtual ~ObjectTracker() override;
 
-    void processFrame(QImage image, QElapsedTimer timer);
+    void processFrame(QImage image);
 
     QMutex* mutex();
 
@@ -41,7 +40,6 @@ public:
     void setFramesPerSecond(float framesPerSecond);
 
     QImage image() const;
-    float latencyMsec() const;
     const Aruco::Markers& markers() const;
     QMap<int, Marker*> idToMarker() const;
 
@@ -49,12 +47,12 @@ public:
 
 signals:
     void framesPerSecondChanged(float framesPerSecond);
+    void imageChanged(QImage image);
 
 private:
     mutable QMutex _mutex;
     QImage _image;
     Aruco* const _aruco;
-    int _latencyMsec;
     Aruco::Markers _markers;
     QMap<int, Marker*> _idToMarker;
     float _framesPerSecond;

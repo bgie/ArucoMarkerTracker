@@ -15,16 +15,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "ViewerController.h"
-#include "Video/Frame.h"
-#include "Video/VideoSource.h"
 #include <QTimer>
 
 ViewerController::ViewerController(QObject* parent)
     : QObject(parent)
-    , _frame(nullptr)
     , _fps(0)
     , _framesCounter(0)
-    , _videoSource(nullptr)
 {
     _elapsedTime.start();
     _refreshFpsTimer = new QTimer(this);
@@ -43,14 +39,8 @@ QImage ViewerController::image() const
     return _image;
 }
 
-void ViewerController::setFrame(Frame* frame)
+void ViewerController::setImage(QImage newImage)
 {
-    if (_frame == frame)
-        return;
-
-    _frame = frame;
-    QImage newImage = _frame ? _frame->image() : QImage();
-
     if (_image == newImage)
         return;
 
@@ -61,23 +51,6 @@ void ViewerController::setFrame(Frame* frame)
     if (_elapsedTime.elapsed() > 500) {
         updateFps();
     }
-}
-
-void ViewerController::setVideoSource(VideoSource* videoSource)
-{
-    if (_videoSource == videoSource)
-        return;
-
-    if (_videoSource) {
-        disconnect(_videoSource, 0, this, 0);
-    }
-
-    _videoSource = videoSource;
-
-    if (_videoSource) {
-        connect(_videoSource, &VideoSource::frameChanged, this, &ViewerController::setFrame);
-    }
-    emit videoSourceChanged(_videoSource);
 }
 
 void ViewerController::setFps(qreal fps)
@@ -101,9 +74,4 @@ void ViewerController::updateFps()
 qreal ViewerController::fps() const
 {
     return _fps;
-}
-
-VideoSource* ViewerController::videoSource() const
-{
-    return _videoSource;
 }

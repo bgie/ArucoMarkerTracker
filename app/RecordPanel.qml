@@ -22,10 +22,7 @@ import ArucoMarkerTracker 1.0
 import './controls/'
 
 Rectangle {
-    RecordController {
-        id: controller
-        videoSource: globalVideoSource
-    }
+    property RecordController controller: globalRecordController
 
     height: recordSettingGrid.implicitHeight + 2 * Style.mediumMargin
     width: recordSettingGrid.implicitWidth + 2 * Style.largeMargin

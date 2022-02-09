@@ -42,7 +42,6 @@ HEADERS += \
     Replay/ReplayTimer.h \
     Record/RecordController.h \
     Video/Video.h \
-    Video/VideoSource.h \
     Viewer/ViewerController.h
 
 SOURCES += \
@@ -67,6 +66,5 @@ SOURCES += \
     Replay/ReplayTimer.cpp \
     Record/RecordController.cpp \
     Video/Video.cpp \
-    Video/VideoSource.cpp \
     Viewer/ViewerController.cpp
 

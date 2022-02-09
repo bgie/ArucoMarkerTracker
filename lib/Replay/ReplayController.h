@@ -20,17 +20,16 @@
 #include <QObject>
 
 class Video;
-class VideoSource;
 
 class ReplayController : public QObject {
     Q_OBJECT
+
     Q_PROPERTY(QString loadPath READ loadPath WRITE setLoadPath NOTIFY loadPathChanged)
     Q_PROPERTY(QString replayFps READ replayFps WRITE setReplayFps NOTIFY replayFpsChanged)
     Q_PROPERTY(bool canReplayStream READ canReplayStream NOTIFY canReplayStreamChanged)
     Q_PROPERTY(bool isReplayStreaming READ isReplayStreaming NOTIFY isReplayStreamingChanged)
     Q_PROPERTY(int frameIndex READ frameIndex NOTIFY frameIndexChanged)
     Q_PROPERTY(QImage image READ image NOTIFY imageChanged)
-    Q_PROPERTY(VideoSource* videoSource READ videoSource WRITE setVideoSource NOTIFY videoSourceChanged)
 
 public:
     explicit ReplayController(QObject* parent = nullptr);
@@ -46,12 +45,9 @@ public:
     QImage image() const;
     int frameIndex() const;
 
-    VideoSource* videoSource() const;
-
 public slots:
     void setLoadPath(QString loadPath);
     void setReplayFps(QString replayFps);
-    void setVideoSource(VideoSource* videoSource);
 
 signals:
     void imageChanged(QImage image);
@@ -60,7 +56,6 @@ signals:
     void replayFpsChanged(QString replayFps);
     void canReplayStreamChanged(bool canReplayStream);
     void isReplayStreamingChanged(bool isReplayStreaming);
-    void videoSourceChanged(VideoSource* videoSource);
 
 private:
     void setFrameIndex(int index);
@@ -77,5 +72,4 @@ private:
     bool _isReplayStreaming;
     int _frameIndex;
     QVector<int> _indicesToPrefetch;
-    VideoSource* _videoSource;
 };

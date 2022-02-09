@@ -22,11 +22,7 @@ import ArucoMarkerTracker 1.0
 import './controls/'
 
 Rectangle {
-    CameraController {
-        id: controller
-        videoSource: globalVideoSource
-        objectTracker: globalObjectTracker
-    }
+    property CameraController controller: globalCameraController
 
     height: cameraSettingsGrid.implicitHeight + 2 * Style.mediumMargin
     width: cameraSettingsGrid.implicitWidth + 2 * Style.largeMargin

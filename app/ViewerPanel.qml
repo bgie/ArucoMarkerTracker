@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+import QtQml 2.12
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
@@ -24,7 +25,10 @@ import './controls/'
 ImageItem {
     ViewerController {
         id: controller
-        videoSource: globalVideoSource
+        Component.onCompleted: {
+            globalCameraController.imageChanged.connect(controller.setImage)
+            globalReplayController.imageChanged.connect(controller.setImage)
+        }
     }
 
     image: controller.image

@@ -19,13 +19,9 @@
 #include <QImage>
 #include <QObject>
 
-class VideoSource;
-class Frame;
-
 class ViewerController : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY(VideoSource* videoSource READ videoSource WRITE setVideoSource NOTIFY videoSourceChanged)
     Q_PROPERTY(QImage image READ image NOTIFY imageChanged)
     Q_PROPERTY(qreal fps READ fps NOTIFY fpsChanged)
 
@@ -36,27 +32,21 @@ public:
     QImage image() const;
     qreal fps() const;
 
-    VideoSource* videoSource() const;
-
 signals:
     void imageChanged(QImage image);
     void fpsChanged(qreal fps);
-    void videoSourceChanged(VideoSource* videoSource);
 
 public slots:
-    void setFrame(Frame* frame);
-    void setVideoSource(VideoSource* videoSource);
+    void setImage(QImage image);
 
 private slots:
     void setFps(qreal fps);
     void updateFps();
 
 private:
-    Frame* _frame;
     QImage _image;
     qreal _fps;
     int _framesCounter;
     QElapsedTimer _elapsedTime;
     QTimer* _refreshFpsTimer;
-    VideoSource* _videoSource;
 };

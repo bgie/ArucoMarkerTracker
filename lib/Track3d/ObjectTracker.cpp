@@ -32,37 +32,40 @@ ObjectTracker::~ObjectTracker()
     qDeleteAll(_idToMarker.values());
 }
 
-void ObjectTracker::processFrame(QImage image, QElapsedTimer timer)
+void ObjectTracker::processFrame(QImage image)
 {
     if (_aruco) {
         auto markers = _aruco->detectMarkers(image);
         auto angles = _aruco->calc2dAngles(markers);
 
-        QMutexLocker lock(&_mutex);
-        const float msecsPerFrame = 1000 / _framesPerSecond;
-        QSet<int> foundIds;
-        bool newIdAdded = false;
-        for (size_t i = 0; i < markers.ids.size(); ++i) {
-            const int id = markers.ids.at(i);
-            foundIds << id;
+        {
+            QMutexLocker lock(&_mutex);
+            const float msecsPerFrame = 1000 / _framesPerSecond;
+            QSet<int> foundIds;
+            bool newIdAdded = false;
+            for (size_t i = 0; i < markers.ids.size(); ++i) {
+                const int id = markers.ids.at(i);
+                foundIds << id;
 
-            if (!_idToMarker.contains(id)) {
-                newIdAdded = true;
-                _idToMarker[id] = new Marker(id);
+                if (!_idToMarker.contains(id)) {
+                    newIdAdded = true;
+                    _idToMarker[id] = new Marker(id);
+                }
+                auto tvec = markers.tvecs.at(i);
+                auto rvec = markers.rvecs.at(i);
+                float angle = angles.at(i);
+                _idToMarker[id]->setPositionRotation(QVector3D(tvec[0], tvec[1], tvec[2]), angle, msecsPerFrame);
             }
-            auto tvec = markers.tvecs.at(i);
-            auto rvec = markers.rvecs.at(i);
-            float angle = angles.at(i);
-            _idToMarker[id]->setPositionRotation(QVector3D(tvec[0], tvec[1], tvec[2]), angle, msecsPerFrame);
-        }
-        auto missingIds = _idToMarker.keys().toSet() - foundIds;
-        for (auto id : missingIds) {
-            _idToMarker[id]->setNotDetected(msecsPerFrame);
+            auto missingIds = _idToMarker.keys().toSet() - foundIds;
+            for (auto id : missingIds) {
+                _idToMarker[id]->setNotDetected(msecsPerFrame);
+            }
+
+            _image = image;
+            _markers = markers;
         }
 
-        _image = image;
-        _markers = markers;
-        _latencyMsec = static_cast<int>(timer.elapsed());
+        emit imageChanged(image);
     }
 }
 
@@ -74,11 +77,6 @@ QMutex* ObjectTracker::mutex()
 QImage ObjectTracker::image() const
 {
     return _image;
-}
-
-float ObjectTracker::latencyMsec() const
-{
-    return _latencyMsec;
 }
 
 const Aruco::Markers& ObjectTracker::markers() const

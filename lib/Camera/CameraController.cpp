@@ -18,7 +18,6 @@
 #include "Camera.h"
 #include "Track3d/ObjectTracker.h"
 #include "Video/Frame.h"
-#include "Video/VideoSource.h"
 #include <QSettings>
 
 namespace {
@@ -36,9 +35,6 @@ CameraController::CameraController(QObject* parent)
     , _gain(0)
     , _canCameraStream(false)
     , _isCameraStreaming(false)
-    , _imageChanged(false)
-    , _videoSource(nullptr)
-    , _objectTracker(nullptr)
 {
     QSettings settings;
     setVideoDevice(settings.value(VIDEODEVICE_KEY, QStringLiteral("/dev/video0")).toString());
@@ -62,10 +58,7 @@ void CameraController::connect()
         settings.setValue(VIDEODEVICE_KEY, _videoDevice);
 
         _camera.reset(new Camera(_videoDevice));
-        QObject::connect(_camera.data(), &Camera::frameRead, this, &CameraController::cameraImageReceived);
-        if (_objectTracker) {
-            QObject::connect(_camera.data(), &Camera::frameRead, _objectTracker, &ObjectTracker::processFrame, Qt::QueuedConnection);
-        }
+        QObject::connect(_camera.data(), &Camera::frameRead, this, &CameraController::imageChanged, Qt::DirectConnection);
 
         auto formats = _camera->videoFormats();
         auto formatIndex = settings.value(VIDEOFORMATINDEX_KEY, formats.count() - 1).toInt();
@@ -78,10 +71,6 @@ void CameraController::connect()
 void CameraController::startCameraStream()
 {
     if (_canCameraStream && !_camera.isNull() && !_isCameraStreaming) {
-        if (_videoSource) {
-            _videoSource->setExclusiveFrameProvider([=]() { this->stopCameraStream(); });
-        }
-
         _camera->startStream();
         setIsCameraStreaming(true);
     }
@@ -128,21 +117,6 @@ bool CameraController::canCameraStream() const
 bool CameraController::isCameraStreaming() const
 {
     return _isCameraStreaming;
-}
-
-QImage CameraController::image() const
-{
-    return _image;
-}
-
-VideoSource* CameraController::videoSource() const
-{
-    return _videoSource;
-}
-
-ObjectTracker* CameraController::objectTracker() const
-{
-    return _objectTracker;
 }
 
 void CameraController::setVideoDevice(QString videoDevice)
@@ -214,21 +188,6 @@ void CameraController::setIsCameraStreaming(bool isCameraStreaming)
     emit isCameraStreamingChanged(_isCameraStreaming);
 }
 
-void CameraController::cameraImageReceived(QImage image)
-{
-    if (_image == image)
-        return;
-
-    _image = image;
-    _imageChanged = true;
-    emit imageChanged(_image);
-
-    if (_videoSource) {
-        Frame* f = new Frame(_image);
-        _videoSource->setFrame(f, true);
-    }
-}
-
 void CameraController::setExposure(int value)
 {
     if (_exposure == value)
@@ -261,25 +220,4 @@ void CameraController::setGain(int value)
     }
 
     emit gainChanged(_gain);
-}
-
-void CameraController::setVideoSource(VideoSource* videoSource)
-{
-    _videoSource = videoSource;
-}
-
-void CameraController::setObjectTracker(ObjectTracker* objectTracker)
-{
-    if (_objectTracker == objectTracker)
-        return;
-
-    if (_objectTracker && _camera) {
-        QObject::disconnect(_camera.data(), 0, _objectTracker, 0);
-    }
-
-    _objectTracker = objectTracker;
-
-    if (_objectTracker && _camera) {
-        QObject::connect(_camera.data(), &Camera::frameRead, _objectTracker, &ObjectTracker::processFrame, Qt::QueuedConnection);
-    }
 }

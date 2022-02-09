@@ -17,7 +17,6 @@
 #include "ReplayController.h"
 #include "Video/Frame.h"
 #include "Video/Video.h"
-#include "Video/VideoSource.h"
 #include <QDir>
 #include <QSettings>
 
@@ -33,7 +32,6 @@ ReplayController::ReplayController(QObject* parent)
     , _canReplayStream(false)
     , _isReplayStreaming(false)
     , _frameIndex(-1)
-    , _videoSource(nullptr)
 {
     QSettings settings;
     setLoadPath(settings.value(LOADPATH_KEY, QDir::homePath()).toString());
@@ -60,10 +58,6 @@ void ReplayController::setFrameIndex(int index)
         _image = frame ? frame->image() : QImage();
         emit frameIndexChanged(_frameIndex);
         emit imageChanged(_image);
-
-        if (_videoSource) {
-            _videoSource->setFrame(frame);
-        }
 
         while (!_indicesToPrefetch.isEmpty() && (index = _indicesToPrefetch.last()) < _frameIndex + PREFETCH_FRAME_COUNT) {
             _video->frames().at(index)->loadImageFromDisk();
@@ -114,15 +108,6 @@ void ReplayController::setReplayFps(QString replayFps)
     emit replayFpsChanged(_replayFps);
 }
 
-void ReplayController::setVideoSource(VideoSource* videoSource)
-{
-    if (_videoSource == videoSource)
-        return;
-
-    _videoSource = videoSource;
-    emit videoSourceChanged(_videoSource);
-}
-
 void ReplayController::setCanReplayStream(bool canReplayStream)
 {
     if (_canReplayStream == canReplayStream)
@@ -159,10 +144,6 @@ bool ReplayController::canReplayStream() const
 void ReplayController::startReplayStream()
 {
     if (_replayTimer.canReplay() && !_isReplayStreaming) {
-        if (_videoSource) {
-            _videoSource->setExclusiveFrameProvider([=]() { this->stopReplayStream(); });
-        }
-
         _replayTimer.setAutoPlayEnabled(true);
         setIsReplayStreaming(true);
     }
@@ -189,9 +170,4 @@ QImage ReplayController::image() const
 int ReplayController::frameIndex() const
 {
     return _frameIndex;
-}
-
-VideoSource* ReplayController::videoSource() const
-{
-    return _videoSource;
 }

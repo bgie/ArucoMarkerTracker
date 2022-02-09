@@ -22,10 +22,7 @@ import ArucoMarkerTracker 1.0
 import './controls/'
 
 Rectangle {
-    ReplayController {
-        id: controller
-        videoSource: globalVideoSource
-    }
+    property ReplayController controller: globalReplayController
 
     height: replaySettingGrid.implicitHeight + 2 * Style.mediumMargin
     width: replaySettingGrid.implicitWidth + 2 * Style.largeMargin

@@ -17,7 +17,6 @@
 #include "RecordController.h"
 #include <QDir>
 #include <QSettings>
-#include <Video/VideoSource.h>
 
 namespace {
 const QString SAVEPATH_KEY(QStringLiteral("SavePath"));
@@ -29,7 +28,6 @@ RecordController::RecordController(QObject* parent)
     , _saveallframesEnabled(false)
     , _skipSavingFrames(0)
     , _skipSavingFramesCounter(0)
-    , _videoSource(nullptr)
 {
     QSettings settings;
     setSavePath(settings.value(SAVEPATH_KEY, QDir::homePath()).toString());
@@ -81,33 +79,12 @@ void RecordController::setSkipSavingFrames(int skipSavingFrames)
     emit skipSavingFramesChanged(_skipSavingFrames);
 }
 
-void RecordController::setVideoSource(VideoSource* videoSource)
+void RecordController::setImage(QImage image)
 {
-    if (_videoSource == videoSource)
-        return;
-
-    if (_videoSource) {
-        disconnect(_videoSource, 0, this, 0);
-    }
-
-    _videoSource = videoSource;
-
-    if (_videoSource) {
-        connect(_videoSource, &VideoSource::frameChanged, this, &RecordController::setFrame);
-    }
-    emit videoSourceChanged(_videoSource);
-}
-
-void RecordController::setFrame(Frame* f)
-{
-    if (_frame == f)
-        return;
-
-    _frame = f;
-
-    if (_saveallframesEnabled && _frame && _frame->fileName().isEmpty()) {
+    _image = image;
+    if (_saveallframesEnabled && !_image.isNull()) {
         if (_skipSavingFramesCounter == 0) {
-            _saver.saveImage(_frame->image());
+            _saver.saveImage(_image);
 
             _skipSavingFramesCounter = _skipSavingFrames;
         } else {
@@ -128,14 +105,9 @@ bool RecordController::saveallframesEnabled() const
 
 void RecordController::saveSingleFrame()
 {
-    if (!_saveallframesEnabled && _frame && _frame->fileName().isEmpty()) {
-        _saver.saveSingleImage(_frame->image());
+    if (!_saveallframesEnabled && !_image.isNull()) {
+        _saver.saveSingleImage(_image);
     }
-}
-
-VideoSource* RecordController::videoSource() const
-{
-    return _videoSource;
 }
 
 int RecordController::skipSavingFrames() const

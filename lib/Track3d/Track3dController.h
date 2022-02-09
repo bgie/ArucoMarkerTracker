@@ -38,24 +38,22 @@ public:
     explicit Track3dController(QObject* parent = nullptr);
     virtual ~Track3dController();
 
+    ObjectTracker* objectTracker() const;
+    void setObjectTracker(ObjectTracker* objectTracker);
+    Aruco* aruco() const;
+    void setAruco(Aruco* aruco);
+
     QImage image();
     qreal fps() const;
     QList<Track3dInfo*> markers() const;
     QList<QObject*> markerQObjects() const;
     QString refPlane() const;
 
-    ObjectTracker* objectTracker() const;
-    Aruco* aruco() const;
-
 signals:
     void imageChanged();
     void fpsChanged(qreal fps);
     void markersChanged();
     void refPlaneChanged(QString refPlane);
-
-public slots:
-    void setObjectTracker(ObjectTracker* objectTracker);
-    void setAruco(Aruco* aruco);
 
 private slots:
     void setRefPlane(QString refPlane);
@@ -65,6 +63,9 @@ private slots:
     void refreshText();
 
 private:
+    ObjectTracker* _objectTracker;
+    Aruco* _aruco;
+
     QImage _image;
     QImage _annotatedImage;
     qreal _fps;
@@ -73,10 +74,6 @@ private:
     QTimer* _refreshImageTimer;
     int _refreshTextCounter;
     QTimer* _refreshFpsTimer;
-    ObjectTracker* _objectTracker;
-    Aruco* _aruco;
-    Aruco::Markers _markers;
-    std::vector<float> _angles;
     QMap<int, Track3dInfo*> _markerInfos;
     QString _refPlane;
 };
