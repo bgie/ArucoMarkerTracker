@@ -30,7 +30,7 @@ ImageItem {
     image: controller.image
 
     MyLabel {
-        anchors.right: parent.right
+        anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.margins: Style.smallMargin
 

@@ -163,12 +163,6 @@ Window {
                 selected: tabs.selected === tabIndex
                 onClicked: tabs.selected = tabIndex
             }
-            MyTabButton {
-                text: "2D tracking"
-                tabIndex: 3
-                selected: tabs.selected === tabIndex
-                onClicked: tabs.selected = tabIndex
-            }
         }
     }
 

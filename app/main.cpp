@@ -21,15 +21,21 @@
 #include "ImageItem.h"
 #include "Record/RecordController.h"
 #include "Replay/ReplayController.h"
-#include "Track3d/Track3dInfo.h"
+#include "Track3d/ObjectTracker.h"
 #include "Track3d/Track3dController.h"
+#include "Track3d/Track3dInfo.h"
 #include "Video/Frame.h"
 #include "Video/Video.h"
 #include "Video/VideoSource.h"
 #include "Viewer/ViewerController.h"
+#include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QThread>
+
+Q_DECLARE_METATYPE(QElapsedTimer)
+int metatype_id = qRegisterMetaType<QElapsedTimer>("QElapsedTimer");
 
 int main(int argc, char *argv[])
 {
@@ -42,6 +48,7 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonType(QUrl("qrc:/Style.qml"), "ArucoMarkerTracker", 1, 0, "Style");
     qmlRegisterType<VideoSource>("ArucoMarkerTracker", 1, 0, "VideoSource");
     qmlRegisterType<Aruco>("ArucoMarkerTracker", 1, 0, "Aruco");
+    qmlRegisterUncreatableType<ObjectTracker>("ArucoMarkerTracker", 1, 0, "ObjectTracker", "Cannot create from qml");
     qmlRegisterType<CameraController>("ArucoMarkerTracker", 1, 0, "CameraController");
     qmlRegisterType<ReplayController>("ArucoMarkerTracker", 1, 0, "ReplayController");
     qmlRegisterType<RecordController>("ArucoMarkerTracker", 1, 0, "RecordController");
@@ -52,12 +59,22 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<FramesCalibrationModel>("ArucoMarkerTracker", 1, 0, "FramesCalibrationModel", "Cannot create from qml");
     qmlRegisterType<ImageItem>("ArucoMarkerTracker", 1, 0, "ImageItem");
 
+    Aruco* aruco = new Aruco(&app);
+    QThread* trackingThread = new QThread(&app);
+    ObjectTracker tracker(aruco);
+    tracker.moveToThread(trackingThread);
+    trackingThread->start(QThread::TimeCriticalPriority);
+
+    engine.rootContext()->setContextProperty("globalAruco", aruco);
+    engine.rootContext()->setContextProperty("globalObjectTracker", &tracker);
     engine.rootContext()->setContextProperty("globalVideoSource", new VideoSource(&app));
-    engine.rootContext()->setContextProperty("globalAruco", new Aruco(&app));
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty()) {
         return -1;
     }
-    return app.exec();
+    auto result = app.exec();
+    trackingThread->quit();
+    trackingThread->wait();
+    return result;
 }

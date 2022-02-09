@@ -15,11 +15,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
+#include <QElapsedTimer>
 #include <QImage>
 #include <QObject>
 #include <QScopedPointer>
-
-struct CameraData;
 
 class Camera : public QObject {
     Q_OBJECT
@@ -44,13 +43,13 @@ public:
     static bool isValidDevice(QString deviceName);
 
 signals:
-    void frameRead(const QImage image);
+    void frameRead(const QImage image, QElapsedTimer timer);
 
 private:
-    void frameReceived(const QImage img);
     void updateExposure();
     void updateGain();
 
 private:
-    QScopedPointer<CameraData> _d;
+    struct Data;
+    QScopedPointer<Data> _d;
 };

@@ -16,6 +16,7 @@
 */
 #include "CameraController.h"
 #include "Camera.h"
+#include "Track3d/ObjectTracker.h"
 #include "Video/Frame.h"
 #include "Video/VideoSource.h"
 #include <QSettings>
@@ -37,6 +38,7 @@ CameraController::CameraController(QObject* parent)
     , _isCameraStreaming(false)
     , _imageChanged(false)
     , _videoSource(nullptr)
+    , _objectTracker(nullptr)
 {
     QSettings settings;
     setVideoDevice(settings.value(VIDEODEVICE_KEY, QStringLiteral("/dev/video0")).toString());
@@ -61,6 +63,9 @@ void CameraController::connect()
 
         _camera.reset(new Camera(_videoDevice));
         QObject::connect(_camera.data(), &Camera::frameRead, this, &CameraController::cameraImageReceived);
+        if (_objectTracker) {
+            QObject::connect(_camera.data(), &Camera::frameRead, _objectTracker, &ObjectTracker::processFrame, Qt::QueuedConnection);
+        }
 
         auto formats = _camera->videoFormats();
         auto formatIndex = settings.value(VIDEOFORMATINDEX_KEY, formats.count() - 1).toInt();
@@ -133,6 +138,11 @@ QImage CameraController::image() const
 VideoSource* CameraController::videoSource() const
 {
     return _videoSource;
+}
+
+ObjectTracker* CameraController::objectTracker() const
+{
+    return _objectTracker;
 }
 
 void CameraController::setVideoDevice(QString videoDevice)
@@ -255,9 +265,21 @@ void CameraController::setGain(int value)
 
 void CameraController::setVideoSource(VideoSource* videoSource)
 {
-    if (_videoSource == videoSource)
+    _videoSource = videoSource;
+}
+
+void CameraController::setObjectTracker(ObjectTracker* objectTracker)
+{
+    if (_objectTracker == objectTracker)
         return;
 
-    _videoSource = videoSource;
-    emit videoSourceChanged(_videoSource);
+    if (_objectTracker && _camera) {
+        QObject::disconnect(_camera.data(), 0, _objectTracker, 0);
+    }
+
+    _objectTracker = objectTracker;
+
+    if (_objectTracker && _camera) {
+        QObject::connect(_camera.data(), &Camera::frameRead, _objectTracker, &ObjectTracker::processFrame, Qt::QueuedConnection);
+    }
 }

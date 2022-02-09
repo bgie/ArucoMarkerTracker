@@ -57,9 +57,9 @@ struct VideoFormat {
     QPair<uint32_t, uint32_t> fps;
 };
 
-struct CameraData {
+struct Camera::Data {
 public:
-    CameraData(QString deviceName)
+    Data(QString deviceName)
         : deviceName(deviceName)
         , fd(0)
         , videoFormatIndex(-1)
@@ -79,7 +79,7 @@ public:
 
 Camera::Camera(QString deviceName, QObject* parent)
     : QObject(parent)
-    , _d(new CameraData(deviceName))
+    , _d(new Data(deviceName))
 {
     _d->fd = open(deviceName.toLatin1().constData(), O_RDWR);
     if (_d->fd < 0) {
@@ -234,7 +234,7 @@ void Camera::startStream()
         updateGain();
 
         _d->reader.reset(new CameraReader(_d->fd, format.size));
-        connect(_d->reader.data(), &CameraReader::frameRead, this, &Camera::frameReceived, Qt::QueuedConnection);
+        connect(_d->reader.data(), &CameraReader::frameRead, this, &Camera::frameRead, Qt::DirectConnection);
     }
 }
 
@@ -248,11 +248,6 @@ void Camera::stopStream()
 bool Camera::isValidDevice(QString deviceName)
 {
     return QFile::exists(deviceName);
-}
-
-void Camera::frameReceived(const QImage img)
-{
-    emit frameRead(img);
 }
 
 void Camera::updateExposure()

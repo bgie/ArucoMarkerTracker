@@ -1,55 +1,47 @@
 /*  ArucoMarkerTracker
     Copyright (C) 2021 Kuppens Brecht
-    
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    
+
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <QElapsedTimer>
-#include <QImage>
-#include <QSize>
-#include <QThread>
-#include <QVector>
+#include "Kalman/KalmanTracker1D.h"
+#include "Kalman/KalmanTracker3D.h"
+#include "Kalman/RotationCounter.h"
+#include <QVector3D>
 
-int xioctl(int fd, int request, void* arg);
-
-class CameraReader : public QThread {
-    Q_OBJECT
-
+class Marker
+{
 public:
-    explicit CameraReader(int fd, QSize frameSize);
-    virtual ~CameraReader();
+    explicit Marker(int id);
 
-signals:
-    void frameRead(const QImage img, QElapsedTimer timer);
+    void setPositionRotation(const QVector3D& newPos, float newAngle, float elapsedMsecs);
+    void setNotDetected(float elapsedMsecs);
 
-protected:
-    virtual void run() override;
+    bool isDetected() const;
+    QVector3D pos() const;
+    float angle() const;
 
-private:
-    void init();
-    bool readFrame();
-    void clear();
-
-private:
-    struct mmapBuffer {
-        void* start;
-        size_t length;
-    };
+    bool isDetectedFiltered() const;
+    QVector3D filteredPos() const;
+    float filteredAngle() const;
 
 private:
-    const int _fd;
-    const QSize _frameSize;
-    volatile bool _stopReading;
-    QVector<struct mmapBuffer> _buffers;
+    const int _id;
+    bool _isDetected;
+    QVector3D _pos;
+    float _angle;
+    KalmanTracker3D _posFilter;
+    RotationCounter _rotationCounter;
+    KalmanTracker1D _angleFilter;
 };

@@ -38,7 +38,7 @@ CameraReader::CameraReader(int fd, QSize frameSize)
     , _frameSize(frameSize)
     , _stopReading(false)
 {
-    this->start();
+    this->start(QThread::TimeCriticalPriority);
 }
 
 CameraReader::~CameraReader()
@@ -54,7 +54,7 @@ void CameraReader::run()
 
     while (!_stopReading) {
         if (!readFrame()) {
-            this->msleep(1);
+            this->yieldCurrentThread();
         }
     }
 
@@ -147,17 +147,19 @@ bool CameraReader::readFrame()
         }
     }
 
-    QImage img = QImage::fromData(
-        reinterpret_cast<const uchar*>(_buffers.at(buffer.index).start),
-        _buffers.at(buffer.index).length,
-        "JPG")
-                     .convertToFormat(QImage::Format_RGB888);
-    emit frameRead(img);
+    QElapsedTimer timer;
+    timer.start();
+
+    auto jpgBuffera = reinterpret_cast<const uchar*>(_buffers.at(buffer.index).start);
+    QImage img = QImage::fromData(jpgBuffera, _buffers.at(buffer.index).length, "JPG");
+    img = img.convertToFormat(QImage::Format_RGB888);
 
     // Enqueue the buffer again
     if (-1 == xioctl(_fd, VIDIOC_QBUF, &buffer)) {
         qCritical() << "VIDIOC_QBUF error, errno: " << errno;
     }
+
+    emit frameRead(img, timer);
     return true;
 }
 

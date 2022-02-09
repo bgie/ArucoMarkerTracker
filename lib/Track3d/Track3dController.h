@@ -21,15 +21,14 @@
 #include <QMap>
 #include <QObject>
 
-class VideoSource;
-class Frame;
 class Track3dInfo;
+class ObjectTracker;
 
 class Track3dController : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY(VideoSource* videoSource READ videoSource WRITE setVideoSource NOTIFY videoSourceChanged)
-    Q_PROPERTY(Aruco* aruco READ aruco WRITE setAruco NOTIFY arucoChanged)
+    Q_PROPERTY(ObjectTracker* objectTracker READ objectTracker WRITE setObjectTracker)
+    Q_PROPERTY(Aruco* aruco READ aruco WRITE setAruco)
     Q_PROPERTY(QImage image READ image NOTIFY imageChanged)
     Q_PROPERTY(qreal fps READ fps NOTIFY fpsChanged)
     Q_PROPERTY(QList<QObject*> markers READ markerQObjects NOTIFY markersChanged);
@@ -45,7 +44,7 @@ public:
     QList<QObject*> markerQObjects() const;
     QString refPlane() const;
 
-    VideoSource* videoSource() const;
+    ObjectTracker* objectTracker() const;
     Aruco* aruco() const;
 
 signals:
@@ -54,16 +53,12 @@ signals:
     void markersChanged();
     void refPlaneChanged(QString refPlane);
 
-    void videoSourceChanged(VideoSource* videoSource);
-    void arucoChanged(Aruco* aruco);
-
 public slots:
-    void setVideoSource(VideoSource* videoSource);
+    void setObjectTracker(ObjectTracker* objectTracker);
     void setAruco(Aruco* aruco);
 
 private slots:
     void setRefPlane(QString refPlane);
-    void setFrame(Frame* f);
     void setFps(qreal fps);
     void updateFps();
     void refreshImage();
@@ -71,17 +66,15 @@ private slots:
 
 private:
     QImage _image;
+    QImage _annotatedImage;
     qreal _fps;
     int _framesCounter;
     QElapsedTimer _elapsedTime;
     QTimer* _refreshImageTimer;
     int _refreshTextCounter;
     QTimer* _refreshFpsTimer;
-    VideoSource* _videoSource;
-    Frame* _frame;
+    ObjectTracker* _objectTracker;
     Aruco* _aruco;
-    bool _imageInvalidated;
-    bool _textInvalidated;
     Aruco::Markers _markers;
     std::vector<float> _angles;
     QMap<int, Track3dInfo*> _markerInfos;

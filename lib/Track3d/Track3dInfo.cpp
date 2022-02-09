@@ -15,12 +15,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "Track3dInfo.h"
+#include "Marker.h"
 #include <math.h>
 
 Track3dInfo::Track3dInfo(int id, QObject* parent)
     : QObject(parent)
     , _id(QString::number(id))
-    , _posFilter(KalmanTracker3D::movingTanksParams())
 {
 }
 
@@ -59,74 +59,33 @@ QString Track3dInfo::fz() const
     return _fz;
 }
 
-QString Track3dInfo::alfa() const
+QString Track3dInfo::angle() const
 {
-    return _alfa;
+    return _angle;
 }
 
-QString Track3dInfo::beta() const
+QString Track3dInfo::fangle() const
 {
-    return _beta;
+    return _fangle;
 }
 
-QString Track3dInfo::gamma() const
+void Track3dInfo::update(Marker* marker)
 {
-    return _gamma;
-}
-
-QString Track3dInfo::angle2d() const
-{
-    return _angle2d;
-}
-
-QString Track3dInfo::fangle2d() const
-{
-    return _fangle2;
-}
-
-void Track3dInfo::setPositionRotation(float x, float y, float z, float alfa, float beta, float gamma, float angle2d)
-{
-    _posFilter.predict(1);
-    _posFilter.update(QVector3D(x, y, z));
-    _rotationCounter.updateAngle(angle2d);
-    _angleFilter.predict(1);
-    _angleFilter.update(_rotationCounter.angleWithRotations());
-
-    _x = QString::number(x, 'f', 1);
-    _y = QString::number(y, 'f', 1);
-    _z = QString::number(z, 'f', 1);
-    _alfa = QString::number(alfa * 180 / M_PI, 'f', 1);
-    _beta = QString::number(beta * 180 / M_PI, 'f', 1);
-    _gamma = QString::number(gamma * 180 / M_PI, 'f', 1);
-    _angle2d = QString::number(_rotationCounter.angleWithRotations() * 180 / M_PI, 'f', 1);
-    updateStrings();
-    emit changed();
-}
-
-void Track3dInfo::setNotDetected()
-{
-    _posFilter.predict(1);
-    _angleFilter.predict(1);
-
-    _x = _y = _z = QStringLiteral("-");
-    _alfa = _beta = _gamma = _angle2d = QStringLiteral("-");
-    updateStrings();
-    emit changed();
-}
-
-void Track3dInfo::updateStrings()
-{
-    if (_posFilter.hasPosition()) {
-        _fx = QString::number(_posFilter.position().x(), 'f', 1);
-        _fy = QString::number(_posFilter.position().y(), 'f', 1);
-        _fz = QString::number(_posFilter.position().z(), 'f', 1);
+    if (marker->isDetected()) {
+        _x = QString::number(marker->pos().x(), 'f', 1);
+        _y = QString::number(marker->pos().y(), 'f', 1);
+        _z = QString::number(marker->pos().z(), 'f', 1);
+        _angle = QString::number(marker->angle() * 180 / M_PI, 'f', 1);
     } else {
-        _fx = _fy = _fz = QStringLiteral("-");
+        _x = _y = _z = _angle = QStringLiteral("-");
     }
-
-    if (_angleFilter.hasPosition()) {
-        _fangle2 = QString::number(_angleFilter.position() * 180 / M_PI, 'f', 1);
+    if (marker->isDetectedFiltered()) {
+        _fx = QString::number(marker->filteredPos().x(), 'f', 1);
+        _fy = QString::number(marker->filteredPos().y(), 'f', 1);
+        _fz = QString::number(marker->filteredPos().z(), 'f', 1);
+        _fangle = QString::number(marker->filteredAngle() * 180 / M_PI, 'f', 1);
     } else {
-        _fangle2 = QStringLiteral("-");
+        _fx = _fy = _fz = _fangle = QStringLiteral("-");
     }
+    emit changed();
 }

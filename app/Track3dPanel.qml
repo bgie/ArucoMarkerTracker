@@ -24,8 +24,8 @@ import './controls/'
 Item {
     Track3dController {
         id: controller
-        videoSource: globalVideoSource
         aruco: globalAruco
+        objectTracker: globalObjectTracker
     }
 
     ImageItem {
@@ -174,22 +174,7 @@ Item {
                             }
                             MyLabel {
                                 width: headerAngle.width
-                                text: modelData.angle2d
-                                color: highlighted ? Style.black : Style.lightGray
-                            }
-                            MyLabel {
-                                width: headerAlfa.width
-                                text: modelData.alfa
-                                color: highlighted ? Style.black : Style.lightGray
-                            }
-                            MyLabel {
-                                width: headerBeta.width
-                                text: modelData.beta
-                                color: highlighted ? Style.black : Style.lightGray
-                            }
-                            MyLabel {
-                                width: headerGamma.width
-                                text: modelData.gamma
+                                text: modelData.angle
                                 color: highlighted ? Style.black : Style.lightGray
                             }
                         }
@@ -216,7 +201,7 @@ Item {
                             }
                             MyLabel {
                                 width: headerAngle.width
-                                text: modelData.fangle2d
+                                text: modelData.fangle
                                 color: highlighted ? Style.black : Style.lightGray
                             }
                         }

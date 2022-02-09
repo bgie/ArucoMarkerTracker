@@ -16,10 +16,11 @@
 */
 #include "Track3dController.h"
 #include "Aruco/Aruco.h"
+#include "Marker.h"
 #include "Plane3d.h"
+#include "Track3d/ObjectTracker.h"
 #include "Track3dInfo.h"
-#include "Video/Frame.h"
-#include "Video/VideoSource.h"
+#include <QMutexLocker>
 #include <QTimer>
 #include <math.h>
 
@@ -28,11 +29,8 @@ Track3dController::Track3dController(QObject* parent)
     , _fps(0)
     , _framesCounter(0)
     , _refreshTextCounter(0)
-    , _videoSource(nullptr)
-    , _frame(nullptr)
+    , _objectTracker(nullptr)
     , _aruco(nullptr)
-    , _imageInvalidated(false)
-    , _textInvalidated(false)
 {
     _elapsedTime.start();
     _refreshFpsTimer = new QTimer(this);
@@ -55,43 +53,12 @@ Track3dController::~Track3dController()
 
 QImage Track3dController::image()
 {
-    return _image;
-}
-
-void Track3dController::setFrame(Frame* f)
-{
-    if (_frame == f)
-        return;
-
-    _frame = f;
-    _imageInvalidated = true;
-    _textInvalidated = true;
-}
-
-void Track3dController::setVideoSource(VideoSource* videoSource)
-{
-    if (_videoSource == videoSource)
-        return;
-
-    if (_videoSource) {
-        disconnect(_videoSource, 0, this, 0);
-    }
-
-    _videoSource = videoSource;
-
-    if (_videoSource) {
-        connect(_videoSource, &VideoSource::frameChanged, this, &Track3dController::setFrame);
-    }
-    emit videoSourceChanged(_videoSource);
+    return _annotatedImage;
 }
 
 void Track3dController::setAruco(Aruco* aruco)
 {
-    if (_aruco == aruco)
-        return;
-
     _aruco = aruco;
-    emit arucoChanged(_aruco);
 }
 
 void Track3dController::setFps(qreal fps)
@@ -114,20 +81,29 @@ void Track3dController::updateFps()
 
 void Track3dController::refreshImage()
 {
-    if (_imageInvalidated) {
-        _image = _frame ? _frame->image() : QImage();
+    if (!_objectTracker)
+        return;
+
+    QMutexLocker lock(_objectTracker->mutex());
+    QImage newImage = _objectTracker->image();
+
+    if (_image != newImage) {
+        _image = newImage;
+        _annotatedImage = newImage;
 
         if (_aruco) {
-            _markers = _aruco->detectMarkers(_image);
-            _angles = _aruco->calc2dAngles(_markers);
-            _aruco->drawMarkers(_image, _markers);
+            _markers = _objectTracker->markers();
+            lock.unlock();
+            _aruco->drawMarkers(_annotatedImage, _markers);
+        } else {
+            lock.unlock();
         }
+
         _framesCounter++;
         if (_elapsedTime.elapsed() > 500) {
             updateFps();
         }
 
-        _imageInvalidated = false;
         emit imageChanged();
 
         if (++_refreshTextCounter == 15) {
@@ -139,27 +115,22 @@ void Track3dController::refreshImage()
 
 void Track3dController::refreshText()
 {
-    QList<QVector3D> points;
-    QSet<int> foundIds;
-    bool newIdAdded = false;
-    for (size_t i = 0; i < _markers.ids.size(); ++i) {
-        const int id = _markers.ids.at(i);
-        foundIds << id;
+    if (!_objectTracker)
+        return;
 
-        if (!_markerInfos.contains(id)) {
+    QMutexLocker lock(_objectTracker->mutex());
+    auto idToMarker = _objectTracker->idToMarker();
+    bool newIdAdded = false;
+    QList<QVector3D> points;
+    for (auto it = idToMarker.cbegin(); it != idToMarker.cend(); ++it) {
+        if (!_markerInfos.contains(it.key())) {
             newIdAdded = true;
-            _markerInfos[id] = new Track3dInfo(id, this);
+            _markerInfos[it.key()] = new Track3dInfo(it.key(), this);
         }
-        auto tvec = _markers.tvecs.at(i);
-        auto rvec = _markers.rvecs.at(i);
-        float angle = _angles.at(i);
-        _markerInfos[id]->setPositionRotation(tvec[0], tvec[1], tvec[2], rvec[0], rvec[1], rvec[2], angle);
-        points << QVector3D(tvec[0], tvec[1], tvec[2]);
+        _markerInfos[it.key()]->update(it.value());
+        points << it.value()->filteredPos();
     }
-    auto missingIds = _markerInfos.keys().toSet() - foundIds;
-    for (auto id : missingIds) {
-        _markerInfos[id]->setNotDetected();
-    }
+    lock.unlock();
 
     bool hasPlane = false;
     auto plane = Plane3d::fitToPoints(points, &hasPlane);
@@ -197,14 +168,14 @@ QList<QObject*> Track3dController::markerQObjects() const
     return result;
 }
 
-VideoSource* Track3dController::videoSource() const
-{
-    return _videoSource;
-}
-
 Aruco* Track3dController::aruco() const
 {
     return _aruco;
+}
+
+void Track3dController::setObjectTracker(ObjectTracker* objectTracker)
+{
+    _objectTracker = objectTracker;
 }
 
 void Track3dController::setRefPlane(QString refPlane)
@@ -219,4 +190,9 @@ void Track3dController::setRefPlane(QString refPlane)
 QString Track3dController::refPlane() const
 {
     return _refPlane;
+}
+
+ObjectTracker* Track3dController::objectTracker() const
+{
+    return _objectTracker;
 }

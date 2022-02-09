@@ -25,6 +25,7 @@ Rectangle {
     CameraController {
         id: controller
         videoSource: globalVideoSource
+        objectTracker: globalObjectTracker
     }
 
     height: cameraSettingsGrid.implicitHeight + 2 * Style.mediumMargin

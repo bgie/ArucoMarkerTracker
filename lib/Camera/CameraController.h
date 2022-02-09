@@ -20,6 +20,7 @@
 
 class Camera;
 class VideoSource;
+class ObjectTracker;
 
 class CameraController : public QObject {
     Q_OBJECT
@@ -32,7 +33,8 @@ class CameraController : public QObject {
     Q_PROPERTY(bool canCameraStream READ canCameraStream NOTIFY canCameraStreamChanged)
     Q_PROPERTY(bool isCameraStreaming READ isCameraStreaming NOTIFY isCameraStreamingChanged)
     Q_PROPERTY(QImage image READ image NOTIFY imageChanged)
-    Q_PROPERTY(VideoSource* videoSource READ videoSource WRITE setVideoSource NOTIFY videoSourceChanged)
+    Q_PROPERTY(VideoSource* videoSource READ videoSource WRITE setVideoSource)
+    Q_PROPERTY(ObjectTracker* objectTracker READ objectTracker WRITE setObjectTracker)
 
 public:
     explicit CameraController(QObject* parent = nullptr);
@@ -53,6 +55,7 @@ public:
     QImage image() const;
 
     VideoSource* videoSource() const;
+    ObjectTracker* objectTracker() const;
 
 public slots:
     void setVideoDevice(QString videoDevice);
@@ -61,6 +64,7 @@ public slots:
     void setExposure(int value);
     void setGain(int value);
     void setVideoSource(VideoSource* videoSource);
+    void setObjectTracker(ObjectTracker* objectTracker);
 
 signals:
     void videoDeviceChanged(QString videoDevice);
@@ -72,7 +76,6 @@ signals:
     void canCameraStreamChanged(bool canCameraStream);
     void isCameraStreamingChanged(bool isCameraStreaming);
     void imageChanged(QImage image);
-    void videoSourceChanged(VideoSource* videoSource);
 
 private slots:
     void setConnectPossible(bool connectPossible);
@@ -93,4 +96,5 @@ private:
     QImage _image;
     bool _imageChanged;
     VideoSource* _videoSource;
+    ObjectTracker* _objectTracker;
 };

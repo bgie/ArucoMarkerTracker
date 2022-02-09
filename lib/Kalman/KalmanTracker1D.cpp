@@ -124,3 +124,15 @@ double KalmanTracker1D::velocity() const
 {
     return _d->state.at<double>(1);
 }
+
+const KalmanTracker1D::Params& KalmanTracker1D::movingTanksParams()
+{
+    static const Params result(10, 10, 3, 3000);
+    return result;
+}
+
+const KalmanTracker1D::Params& KalmanTracker1D::staticMarkerParams()
+{
+    static const Params result(1e-7, 1e-7, 1, 8000);
+    return result;
+}

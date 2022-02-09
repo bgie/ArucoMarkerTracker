@@ -38,7 +38,10 @@ public:
     bool hasPosition() const;
     double position() const;
     double velocity() const;
-
+    
+    static const Params& movingTanksParams();
+    static const Params& staticMarkerParams();
+    
 private:
     struct Data;
     QScopedPointer<Data> _d;
